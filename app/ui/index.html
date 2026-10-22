@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google" content="notranslate">
 <title>Partnership Tools</title>
-<link rel="icon" id="ico" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23183665'/%3E%3Ccircle cx='25' cy='32' r='11' fill='none' stroke='white' stroke-width='6'/%3E%3Ccircle cx='39' cy='32' r='11' fill='none' stroke='white' stroke-width='6'/%3E%3C/svg%3E">
+<link rel="icon" id="ico" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='54' font-size='86' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%A4%9D%3C/text%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#262624; --elev:#2F2D29; --card:#34322D; --hover:#3D3B36;
@@ -186,8 +186,9 @@
   <div class="side-end">
     <div class="row">
       <button class="btn sm gho" style="flex:1" onclick="openOut()" title="Open the folder with every result file">Output</button>
-      <button class="btn sm gho" style="flex:1" id="themeBtn" onclick="toggleTheme()">Light</button>
+      <button class="btn sm gho" style="flex:1" id="themeBtn" onclick="toggleTheme()">Light mode</button>
     </div>
+    <div class="seg" id="langSeg"><button data-l="en" onclick="setLang('en')">English</button><button data-l="vi" onclick="setLang('vi')">Tiếng Việt</button></div>
     <button class="btn sm gho" onclick="quit()">Quit</button>
     <div class="ver" id="ver">v...</div>
   </div>
@@ -241,6 +242,250 @@ async function openUrl(url){ const r = await api("/api/open", {url}); if(r.error
 function openOut(){ api("/api/open", {what:"output"}); }
 function st(tool){ return S[tool] || (S[tool] = {}); }
 
+// ------------------------------------------------------------ language: English / Tiếng Việt
+// The page is written in English. With Tiếng Việt on, every text is swapped right after it is drawn:
+// VI = exact text, VI_RE = text with numbers or names inside. Table cells (td), logs (pre) and file
+// chips are data and stay as they are (a td with class "t" is a label and is translated).
+let LANG = "en"; try { LANG = localStorage.getItem("ct_lang") === "vi" ? "vi" : "en"; } catch(e){}
+const VI = {
+  // shell
+  "Output": "Kết quả", "Light mode": "Nền sáng", "Dark mode": "Nền tối", "Quit": "Thoát",
+  "Open the folder with every result file": "Mở thư mục chứa mọi file kết quả",
+  "Claims": "Bồi thường", "Certificates": "Giấy chứng nhận", "Data & Reconcile": "Dữ liệu và đối soát",
+  "Reconcile": "Đối soát", "Slips & invoices": "Phiếu và hóa đơn", "Update": "Cập nhật",
+  "This window is from an older start. Close it and open the tool again.": "Cửa sổ này thuộc lần mở trước. Đóng nó rồi mở lại tool.",
+  "The tool has closed. Open it again from the shortcut.": "Tool đã đóng. Mở lại từ shortcut.",
+  "Drop files here or click to choose": "Thả file vào đây hoặc bấm để chọn",
+  "Drop a file here or click to choose": "Thả một file vào đây hoặc bấm để chọn",
+  "uploading...": "đang tải lên...", "Remove": "Bỏ file này",
+  "Stopping, keeping what is done...": "Đang dừng, giữ phần đã xong...", "Stopped": "Đã dừng", "Stopped.": "Đã dừng.",
+  "Results show here.": "Kết quả hiện ở đây.", "Stop": "Dừng", "Log": "Nhật ký", "The run failed.": "Lượt chạy bị lỗi.",
+  "Technical detail": "Chi tiết kỹ thuật", "Details": "Chi tiết", "Open": "Mở", "Folder": "Thư mục",
+  "Save a copy to Downloads": "Lưu một bản vào thư mục Downloads", "Show the file in its folder": "Mở thư mục chứa file",
+  "No rows here.": "Không có dòng nào.", "Main columns only": "Chỉ hiện cột chính",
+  "Checking Fabric...": "Đang kiểm tra Fabric...", "Database driver missing": "Thiếu driver cơ sở dữ liệu", "Get driver": "Tải driver",
+  "Switch": "Đổi tài khoản", "Sign in with another account": "Đăng nhập bằng tài khoản khác",
+  "Not signed in to Fabric": "Chưa đăng nhập Fabric", "Sign in": "Đăng nhập", "Sign in to Fabric": "Đăng nhập Fabric",
+  "Open the Microsoft page, enter this code, then sign in with your PVI account.": "Mở trang Microsoft, nhập mã này rồi đăng nhập bằng tài khoản PVI.",
+  "Copy code": "Chép mã", "Open sign-in page": "Mở trang đăng nhập",
+  "This window moves on by itself once you are signed in.": "Đăng nhập xong cửa sổ này tự chạy tiếp.",
+  "Getting a sign-in code...": "Đang lấy mã đăng nhập...", "Cancel": "Hủy", "Getting the database driver...": "Đang tải driver cơ sở dữ liệu...",
+  "Code copied": "Đã chép mã", "Fabric sign-in": "Đăng nhập Fabric", "Get database driver": "Tải driver cơ sở dữ liệu",
+  "Database driver": "Driver cơ sở dữ liệu", "ready": "sẵn sàng", "Signed in": "Đã đăng nhập",
+  "Type the date as dd/mm/yyyy": "Gõ ngày theo dạng dd/mm/yyyy", "Reading the file...": "Đang đọc file...", "Reading the files...": "Đang đọc file...",
+  "File": "File", "Type": "Loại", "Run": "Chạy", "Options": "Tùy chọn", "Product": "Sản phẩm", "Template": "Template",
+  "Result": "Kết quả", "Detail": "Chi tiết từng dòng", "Total": "Tổng", "Rows": "Số dòng", "Pages": "Số trang", "Policies": "Số đơn",
+  // update
+  "Checking...": "Đang kiểm tra...", "Updates are not set up in this copy (app\\update.json has no repo).": "Bản này chưa cài nguồn cập nhật (app\\update.json chưa có repo).",
+  "This is the latest version.": "Đây là bản mới nhất.", "Version in use": "Bản đang dùng", "Check for updates": "Kiểm tra bản mới",
+  "Download and install": "Tải và cài bản mới", "Restart the tool": "Khởi động lại tool", "What is new": "Có gì mới",
+  "Install from a zip file": "Cài từ file zip", "When this PC cannot reach GitHub.": "Khi máy không vào được GitHub.", "Install": "Cài",
+  "Restarting...": "Đang khởi động lại...", "The tool is closed.": "Tool đã đóng.", "A tool is still running. Quit and stop it?": "Một tool vẫn đang chạy. Thoát và dừng nó?",
+  // errors from the server and the runs
+  "Uploaded file is gone, add it again.": "File đã tải lên không còn, thêm lại file.", "This tool is already running.": "Tool này đang chạy.",
+  "Wait for the running tools to finish.": "Chờ các tool đang chạy xong đã.", "Cannot read these files.": "Không đọc được các file này.",
+  "Not signed in to Fabric yet. Click 'Sign in' at the top of the page.": "Chưa đăng nhập Fabric. Bấm 'Đăng nhập' ở đầu trang.",
+  "The Fabric sign-in has expired. Click 'Sign in' at the top of the page.": "Phiên đăng nhập Fabric đã hết hạn. Bấm 'Đăng nhập' ở đầu trang.",
+  "No SQL Server driver on this PC. Click 'Get driver' at the top of the page.": "Máy chưa có driver SQL Server. Bấm 'Tải driver' ở đầu trang.",
+  "The chosen sheet has no claim rows to map.": "Sheet đã chọn không có dòng hồ sơ nào để map.", "No value to look up.": "Không có giá trị nào để tra.",
+  "No invoice link to get.": "Không có link hóa đơn nào để tải.", "Upload an .xlsx or .xlsm file.": "Tải lên file .xlsx hoặc .xlsm.",
+  "No policy row found. Upload the VCND and TNCN exports from PIAS.": "Không thấy dòng đơn nào. Tải lên file xuất VCND và TNCN từ PIAS.",
+  "No invoice link found in the file. If the links come from a formula, open the file in Excel, let it calculate, save and upload again.": "Không thấy link hóa đơn trong file. Nếu link do công thức tạo ra, mở file bằng Excel cho tính xong, lưu lại rồi tải lên lại.",
+  // Map Claim
+  "Add a claim file, pick the sheet and the product, then Map claims. You get the same file back with the Policy / RI columns and the Pias sheet added.": "Thêm file claim, chọn sheet và sản phẩm rồi bấm Map hồ sơ. Tool trả lại đúng file đó, thêm các cột Policy / RI và sheet Pias.",
+  "Claim file": "File claim", "Template & column guide": "Template và hướng dẫn cột",
+  "No mappable sheet. It needs a bảng kê (headers Số yêu cầu + IMEI/Serial) or an English Data sheet.": "Không có sheet map được. Cần sheet bảng kê (có cột Số yêu cầu + IMEI/Serial) hoặc sheet Data tiếng Anh.",
+  "Read as an English Data sheet (no Số yêu cầu column), so no Pias sheet is made.": "Sheet này đọc kiểu Data tiếng Anh (không có cột Số yêu cầu) nên không sinh sheet Pias.",
+  "Column details": "Chi tiết cột", "Column": "Cột", "In the file": "Tên trong file", "If missing": "Thiếu thì mất",
+  "Product of this batch": "Sản phẩm của đợt này", "Map claims": "Map hồ sơ",
+  "Keeps the match inside this product, so an EW policy of the same device is not picked by mistake.": "Giữ việc map trong đúng sản phẩm này để không vớ nhầm đơn EW của cùng thiết bị.",
+  "Sign in to Fabric first (top right).": "Đăng nhập Fabric trước (góc trên bên phải).",
+  "Mapped": "Map được", "Rows with note": "Dòng có lưu ý", "Columns the tool appends": "Các cột tool thêm vào",
+  // Check Salvage
+  "Add the file, then run. Rate cards come from rate_source.xlsm inside the tool.": "Thêm file rồi bấm chạy. Bảng giá lấy từ rate_source.xlsm trong tool.",
+  "Mode": "Chế độ", "Celebi · BBDS reconcile": "Celebi · đối soát BBDS", "Ecoswap · phone pricing": "Ecoswap · định giá ĐT",
+  "BBDS file (sheet BBDS)": "File BBDS (sheet BBDS)", "Phone list (sheet DT)": "Danh sách điện thoại (sheet DT)",
+  "The monthly reconciliation file from Celebi.": "File đối soát Celebi gửi hằng tháng.",
+  "Sheet DT: Model, IMEI, Sum Insured, Giá KH mua, GSC phân loại, purchase date, GS sent date.": "Sheet DT: Model, IMEI, Sum Insured, Giá KH mua, GSC phân loại, ngày mua, ngày GS gửi.",
+  "rate_source.xlsm is missing in app\\data.": "Thiếu file rate_source.xlsm trong app\\data.",
+  "Price Eco vs Celebi": "Định giá Eco và Celebi", "Celebi reconcile": "Đối soát Celebi", "Ecoswap vs Celebi pricing": "Định giá Ecoswap và Celebi",
+  "Devices": "Thiết bị", "Match": "Khớp", "Mismatch": "Lệch", "Phones": "Điện thoại",
+  "Higher = Ecoswap": "Nhà cao hơn = Ecoswap", "Higher = Celebi": "Nhà cao hơn = Celebi", "By group": "Theo nhóm",
+  // Check Invoice
+  "Add the device list, pick a speed, then Start. KHỚP = declared price matches the invoice, LỆCH = check again, KHÔNG TRA ĐƯỢC = check by hand.": "Thêm danh sách máy, chọn tốc độ rồi bấm Bắt đầu. KHỚP = giá khai khớp hóa đơn, LỆCH = cần xem lại, KHÔNG TRA ĐƯỢC = phải rà tay.",
+  "Device list": "Danh sách máy", "Columns: IMEI/Serial · SĐT · Số HĐ · Giá KH mua · Model.": "Các cột: IMEI/Serial · SĐT · Số HĐ · Giá KH mua · Model.",
+  "Speed": "Tốc độ", "Light": "Nhẹ", "Balanced": "Vừa", "Fast": "Nhanh", "Start": "Bắt đầu",
+  "Light = 3 lookups at a time, least likely to be blocked by TGDĐ.": "Nhẹ = 3 lượt tra cùng lúc, ít bị TGDĐ chặn nhất.",
+  "Stopped part way: the file holds the devices looked up before the stop.": "Đã dừng giữa chừng: file có các máy tra được trước khi dừng.",
+  // Generate GCNBH
+  "Add the Excel file from PIAS, then Generate. A sheet named with GCN gives original certificates, with SĐBS gives endorsements.": "Thêm file Excel xuất từ PIAS rồi bấm Tạo giấy. Sheet tên có chữ GCN ra giấy gốc, có chữ SĐBS ra sửa đổi bổ sung.",
+  "Excel file from PIAS": "File Excel từ PIAS", "The product code is in the sheet name, for example GCN gốc BHMR.": "Mã sản phẩm nằm trong tên sheet, ví dụ GCN gốc BHMR.",
+  "Merged file as PDF (uses Word)": "Bản gộp xuất PDF (dùng Word)", "Word is not installed on this PC, the merged file stays .docx.": "Máy này không có Word, bản gộp giữ dạng .docx.",
+  "Generate": "Tạo giấy",
+  // Search GCNBH
+  "Add a claim file (any file with policy numbers like 25/45/09/KHAC/P000123) or paste numbers, then Search.": "Thêm file claim (file bất kỳ có số đơn dạng 25/45/09/KHAC/P000123) hoặc dán số đơn rồi bấm Tìm.",
+  "Claim file (optional)": "File claim (không bắt buộc)", "Sheets to read": "Sheet lấy số đơn", "Or paste policy numbers": "Hoặc dán số hợp đồng",
+  "Product of the claims": "Sản phẩm của hồ sơ", "Auto (from the file)": "Tự nhận theo file", "All products": "Tất cả sản phẩm",
+  "One policy number can have certificates of several products. Auto reads the Product column, else the file name.": "Một số đơn có thể có GCN của nhiều sản phẩm. Tự nhận lấy theo cột Product, không có thì theo tên file.",
+  "Search": "Tìm", "OneDrive folder found": "Đã thấy thư mục OneDrive", "Print": "In", "Max pages per PDF": "Số trang tối đa mỗi file PDF",
+  "Include XMP (each XMP once, right after the first certificate using it)": "Kèm XMP (mỗi XMP in 1 lần, ngay sau GCN đầu tiên dùng nó)",
+  "Only rows with exactly one certificate (Tìm thấy). Open the others from their links.": "Chỉ lấy các dòng có đúng 1 giấy (Tìm thấy). Các dòng khác mở từ link.",
+  "Merge certificates to PDF": "Gộp GCN thành PDF", "PDF files": "Số file PDF",
+  // Search Database
+  "Type IMEI, phone, policy number or request ID on the left, then Search. Returns every premium row that matches, cancellations and /E versions included.": "Nhập IMEI, số điện thoại, số hợp đồng hoặc mã giao dịch bên trái rồi bấm Tìm. Trả về mọi dòng phí khớp, kể cả dòng hủy và các bản sửa đổi /E.",
+  "Search by": "Tra theo", "Auto": "Tự động", "Phone": "SĐT", "Policy": "Số HĐ", "Request ID": "Mã GD",
+  "A value with / is a policy number; the rest go IMEI, then request ID, then phone, the same order as Map Claim.": "Giá trị có dấu / là số hợp đồng; còn lại tra lần lượt IMEI, mã giao dịch, số điện thoại, đúng thứ tự của Map Claim.",
+  "Prefix match: 25/45/09/KHAC/P000028 also returns /E01, /E02.": "Khớp tiền tố: 25/45/09/KHAC/P000028 ra cả /E01, /E02.",
+  "Matches the last 9 digits.": "Khớp 9 số cuối.", "Values, one per line": "Giá trị, mỗi dòng một giá trị", "Row limit": "Giới hạn số dòng",
+  "A merged policy number can have over 12,000 premium rows. Raise the limit if the result is cut.": "Một số hợp đồng gộp có thể trên 12.000 dòng phí. Kết quả bị cắt thì nâng giới hạn.",
+  "Values": "Giá trị tra", "Found": "Tìm thấy", "Premium rows": "Dòng phí",
+  // Reconcile TGDD
+  "Weekly: the week's PIAS or PVI Connect file gives the discounted-fee file. Monthly: the weekly result files against the ĐMX file.": "Theo tuần: file PIAS hoặc PVI Connect của tuần ra file phí sau giảm. Theo tháng: các file tuần đã tính phí đối soát với file ĐMX.",
+  "Job": "Việc", "Weekly · discounted fee": "Tuần · phí sau giảm", "Monthly · vs ĐMX": "Tháng · đối soát ĐMX",
+  "Week data file": "File dữ liệu tuần", "PIAS or PVI Connect export, the tool tells which.": "File xuất PIAS hoặc PVI Connect, tool tự nhận.",
+  "Weekly result files of the month": "Các file tuần đã tính phí của tháng", "ĐMX file (sheets BÁN and HỦY)": "File ĐMX (sheet BÁN và HỦY)",
+  "Rules file": "Bảng rule", "Download the rules in use": "Tải bảng rule đang dùng",
+  ". To try another one for this run only, add it here.": ". Muốn dùng tạm bảng khác cho lượt này thì thêm vào đây.",
+  "Use another rules file (optional)": "Dùng bảng rule khác (không bắt buộc)", "Compute discounted fee": "Tính phí sau giảm",
+  "Reconcile month": "Đối soát tháng", "Weekly discounted fee": "Phí sau giảm theo tuần", "Monthly reconcile": "Đối soát tháng",
+  "Match (case 1)": "Khớp (case 1)", "Fee diff (2 + 9)": "Lệch phí (2 + 9)", "One side only (4 + 5)": "Chỉ một bên ghi nhận (4 + 5)", "By case": "Theo trường hợp",
+  // D2C VNPAY
+  "Add the files of the month, then Run. You get the reconciliation workbook with the Cảnh báo and Treo sheets.": "Thêm các file của tháng rồi bấm Chạy. Kết quả là file đối soát có sheet Cảnh báo và Treo.",
+  "Files of the month": "File của tháng", "Drop the 8 files here or click to choose": "Thả 8 file vào đây hoặc bấm để chọn",
+  "VNPAY*.xlsx (1), ADMIN*.csv (2), PIAS*.xlsx (4), *HÓA ĐƠN THU PHÍ*.xlsx (1). The type is read from the file name.": "VNPAY*.xlsx (1), ADMIN*.csv (2), PIAS*.xlsx (4), *HÓA ĐƠN THU PHÍ*.xlsx (1). Loại file nhận theo tên file.",
+  "Excel is not on this PC, so the formulas are not recalculated. Open the result in Excel once before sending.": "Máy này không có Excel nên công thức chưa được tính lại. Mở file kết quả bằng Excel một lần trước khi gửi.",
+  "Successful transactions": "Giao dịch thành công", "Matched to Admin": "Khớp Admin", "With policy no.": "Có số đơn",
+  "Formulas were not recalculated (Excel not found). Open the file in Excel once to refresh them.": "Công thức chưa được tính lại (không có Excel). Mở file bằng Excel một lần để cập nhật.",
+  "VNPAY statement": "Sao kê VNPAY", "Admin export": "File xuất Admin", "PIAS export": "File xuất PIAS", "Invoice ledger": "Sổ hóa đơn thu phí",
+  "Not used": "Không dùng", "Request list": "Danh sách yêu cầu", "Not recognised": "Không nhận ra",
+  "D2C VNPAY reconciliation": "Đối soát D2C VNPAY",
+  // PTT slips
+  "Add the VCND and TNCN exports from PIAS. The period is filled in from the files, check it, then Make slips.": "Thêm file xuất VCND và TNCN từ PIAS. Kỳ được điền sẵn từ file, kiểm tra lại rồi bấm Tạo phiếu.",
+  "PIAS exports": "File xuất PIAS", "Drop the VCND and TNCN exports here": "Thả file xuất VCND và TNCN vào đây",
+  "Straight from PIAS, no editing. One of the two alone also works.": "Lấy thẳng từ PIAS, không cần sửa. Chỉ có một trong hai file cũng chạy được.",
+  "Period": "Kỳ", "From (Ngày đầu)": "Từ (Ngày đầu)", "To (Ngày cuối)": "Đến (Ngày cuối)", "Slip date": "Ngày lập phiếu",
+  "The Ngày cuối has to be after the Ngày đầu.": "Ngày cuối phải sau Ngày đầu.", "No policy starts inside this period in these files.": "Trong kỳ này không có đơn nào bắt đầu.",
+  "Make slips": "Tạo phiếu", "Slips": "Số phiếu", "Slip": "Phiếu", "Premium": "Phí", "PTT slips": "PTT slips",
+  // Invoice PDFs
+  "Add the Excel file with the invoice links. Duplicate links are dropped, the PDFs come back merged in row order, ready to print.": "Thêm file Excel có link hóa đơn. Link trùng được bỏ, PDF trả về gộp theo thứ tự dòng, sẵn để in.",
+  "File with invoice links": "File có link hóa đơn",
+  "The column with the most links is used. Links from a formula are read from the values Excel saved last time.": "Tool dùng cột có nhiều link nhất. Link tạo bằng công thức lấy theo giá trị Excel đã lưu lần cuối.",
+  "Invoices to get": "Hóa đơn cần tải", "Duplicates removed": "Link trùng đã bỏ", "Get PDFs": "Tải PDF", "PDFs merged": "PDF đã gộp",
+  "Invoices": "Hóa đơn", "Invoice": "Hóa đơn", "Status": "Trạng thái", "No": "STT", "Row": "Dòng",
+  // Invoice requests (XHD)
+  "Add the request list, the HÓA ĐƠN THU PHÍ export and the PIAS exports. You get the slips on request, the bulk slips and the Excel files in one zip.": "Thêm danh sách yêu cầu, file HÓA ĐƠN THU PHÍ và file xuất PIAS. Kết quả là phiếu theo yêu cầu, phiếu gom khách lẻ và các file Excel trong một file zip.",
+  "Files": "File", "Drop the request list, HÓA ĐƠN THU PHÍ and PIAS exports here": "Thả danh sách yêu cầu, HÓA ĐƠN THU PHÍ và file xuất PIAS vào đây",
+  "Add the invoice ledger (HÓA ĐƠN THU PHÍ export).": "Thêm file HÓA ĐƠN THU PHÍ.", "Add the request list and/or the PIAS exports.": "Thêm danh sách yêu cầu và/hoặc file xuất PIAS.",
+  "Bulk from (Ngày cấp đơn)": "Gom từ (Ngày cấp đơn)", "Bulk to": "Gom đến", "The end date has to be on or after the start date.": "Ngày cuối phải bằng hoặc sau ngày đầu.",
+  "Auto-fill company names and vehicle fees": "Tự điền tên công ty và phí xe", "Invoice requests": "Yêu cầu xuất hóa đơn",
+  "Slips on request": "Phiếu theo yêu cầu", "Bulk slips": "Phiếu gom", "Note": "Ghi chú", "On request": "Theo yêu cầu",
+  "Tax ID printouts (Cục Thuế)": "Bản in tra cứu MST (Cục Thuế)", "Looking up on the tax site...": "Đang tra trên trang Cục Thuế...",
+  "Captcha": "Captcha", "Look up": "Tra cứu", "New captcha": "Captcha mới", "Skip": "Bỏ qua",
+  "Could not read the captcha automatically, type it below.": "Không tự đọc được captcha, gõ vào ô bên dưới.",
+  "Wrong captcha, try the new one.": "Sai captcha, thử captcha mới.",
+  "The tax site kept sending the request to another server, type the new captcha.": "Trang Cục Thuế chuyển yêu cầu sang máy khác, gõ captcha mới.",
+  "Tax ID": "MST", "Company": "Công ty", "Tax site result": "Kết quả tra cứu",
+  "Saved": "Đã lưu", "Saved, check": "Đã lưu, cần xem lại", "Skipped": "Bỏ qua", "Not found": "Không tìm thấy",
+  // KBank
+  "Add the masterfile, check the password and the issue date, then Generate certificates.": "Thêm masterfile, kiểm tra mật khẩu và ngày cấp rồi bấm Tạo giấy chứng nhận.",
+  "Output format": "Kiểu file xuất", "Separate files (.zip)": "File lẻ (.zip)", "One merged Word file": "Một file Word gộp",
+  "Every certificate in one .docx, one per page, easier to print.": "Mọi giấy trong một file .docx, mỗi giấy một trang, dễ in.",
+  "A .zip of individual .docx files, one per person.": "File .zip gồm các file .docx lẻ, mỗi người một file.",
+  "Excel file password": "Mật khẩu file Excel", "The masterfile is encrypted. Leave the default unless it changed.": "Masterfile có mật khẩu. Giữ mặc định trừ khi đã đổi.",
+  "Issue date printed on each certificate": "Ngày cấp in trên từng giấy", "Generate certificates": "Tạo giấy chứng nhận",
+  "Check before sending": "Kiểm tra trước khi gửi"
+};
+const VI_RE = [
+  [/^(\w+): no policy in this period, no slip produced\.$/, "$1: không có đơn trong kỳ, không ra phiếu."],
+  [/^(.+): No policy number in the request \(PVI Policy GCN is empty\)\.$/, "$1: yêu cầu không có số đơn (cột PVI Policy GCN trống)."],
+  [/^PIAS: (\d+) repeated row\(s\) \(one per insured person\) counted once\.$/, "PIAS: $1 dòng lặp (mỗi người được BH một dòng) chỉ tính một lần."],
+  [/^Bulk: every policy in the PIAS export already has an invoice or a request\.$/, "Gom: mọi đơn trong file PIAS đã có hóa đơn hoặc yêu cầu."],
+  [/^Dong (\d+): thieu So GCNBH\.$/, "Dòng $1: thiếu Số GCNBH."],
+  [/^Download (.+)$/, "Tải về $1"],
+  [/^Done in (\d+) min (\d+) s$/, "Xong trong $1 phút $2 giây"], [/^Done in (\d+) s$/, "Xong trong $1 giây"],
+  [/^(\d+) min (\d+) s$/, "$1 phút $2 giây"], [/^(\d+) s$/, "$1 giây"],
+  [/^Showing (\d+) of ([\d,.]+) rows\. The file has all of them\.$/, "Đang hiện $1 trên $2 dòng. File tải về có đủ."],
+  [/^(\d+) warnings?$/, "$1 cảnh báo"], [/^Separate files \((\d+)\)$/, "File lẻ ($1)"],
+  [/^All \((\d+)\)$/, "Tất cả ($1)"], [/^With note \((\d+)\)$/, "Có lưu ý ($1)"], [/^Not mapped \((\d+)\)$/, "Không map được ($1)"],
+  [/^SI diff \((\d+)\)$/, "SI lệch ($1)"], [/^Mismatch \((\d+)\)$/, "Lệch ($1)"], [/^Match \((\d+)\)$/, "Khớp ($1)"],
+  [/^Higher = (\w+) \((\d+)\)$/, "Nhà cao hơn = $1 ($2)"], [/^Failed \((\d+)\)$/, "Lỗi ($1)"],
+  [/^Fabric ready · (.+)$/, "Fabric sẵn sàng · $1"], [/^Sign-in failed: (.*)$/, "Đăng nhập lỗi: $1"],
+  [/^(.+) · bảng kê, (\d+) rows$/, "$1 · bảng kê, $2 dòng"], [/^(.+) · Data \(English\)$/, "$1 · Data (tiếng Anh)"],
+  [/^Reads (\d+)\/(\d+) columns\. Missing: (.+)\. It still runs, check the details first\.$/, "Đọc được $1/$2 cột. Thiếu: $3. Vẫn chạy được, xem chi tiết trước khi bấm."],
+  [/^Reads all (\d+)\/(\d+) columns\.$/, "Đọc đủ $1/$2 cột."],
+  [/^Sheet '(.+)' · product (.+) · match key (.+)$/, "Sheet '$1' · sản phẩm $2 · khóa map $3"],
+  [/^SI mismatch (\d+)$/, "Lệch SI $1"], [/^Cancelled \/ recreated (\d+)$/, "Đơn hủy / tạo lại $1"], [/^Pias sheet (\d+) rows$/, "Sheet Pias $1 dòng"],
+  [/^(\d+) devices · ([\d.]+) min$/, "$1 máy · $2 phút"],
+  [/^Word templates \((\d+) products\)$/, "Mẫu Word ($1 sản phẩm)"], [/^\((\d+) policies\)$/, "($1 số đơn)"],
+  [/^OneDrive folder "(.+)" not on this PC$/, "Máy này chưa có thư mục OneDrive \"$1\""],
+  [/^Merge (\d+) found certificates into PDF$/, "Gộp $1 GCN tìm thấy thành PDF"],
+  [/^(\d+) values?, only the first 500 are looked up$/, "$1 giá trị, chỉ tra 500 giá trị đầu"], [/^(\d+) values?$/, "$1 giá trị"],
+  [/^(\d+) weekly file\(s\) · (\d+) result rows$/, "$1 file tuần · $2 dòng kết quả"],
+  [/^Product (.+) · sheet (.+) · header row (.+)$/, "Sản phẩm $1 · sheet $2 · dòng tiêu đề $3"],
+  [/^Cannot check: (.*)$/, "Không kiểm tra được: $1"], [/^Version (.+) is available\.$/, "Đã có bản $1."],
+  [/^Cannot connect to Fabric\. Check the network and that your account can open the Equipment workspace\. (.*)$/, "Không kết nối được Fabric. Kiểm tra mạng và quyền vào workspace Equipment. $1"],
+  [/^OneDrive folder '(.+)' not found on this PC\. Ask P\.TBHH to share it, then in OneDrive on the web choose 'Add shortcut to My files'\.$/, "Máy này chưa có thư mục OneDrive '$1'. Nhờ P.TBHH share, rồi trên OneDrive web chọn 'Add shortcut to My files'."],
+  [/^Unexpected error: (.*)$/, "Lỗi không lường trước: $1"], [/^The run ended with code (.+)\.$/, "Lượt chạy kết thúc với mã $1."],
+  [/^Bad date: (.*)$/, "Ngày không hợp lệ: $1"], [/^Cannot reach the tax site \((.+)\)\.$/, "Không vào được trang Cục Thuế ($1)."],
+  [/^Period (.+) · (.+) transactions in the VNPAY file · invoice no\. found for (.+)$/, "Kỳ $1 · $2 giao dịch trong file VNPAY · tìm được số hóa đơn cho $3"],
+  [/^(\d+) formula errors in the file\. Check before sending\.$/, "File có $1 lỗi công thức. Kiểm tra trước khi gửi."],
+  [/^Missing the VNPAY statement\.$/, "Thiếu sao kê VNPAY."], [/^Missing the Admin export\.$/, "Thiếu file xuất Admin."],
+  [/^Missing the PIAS export\.$/, "Thiếu file xuất PIAS."], [/^Missing the Invoice ledger\.$/, "Thiếu file HÓA ĐƠN THU PHÍ."],
+  [/^Upload only one (.+) file\.$/, "Chỉ tải lên một file $1."],
+  [/^(.+): (\d+) of (\d+) files\. Rows of the missing ones will not be matched\.$/, "$1: có $2/$3 file. Dòng của file thiếu sẽ không khớp được."],
+  [/^Ngày đầu in the files: (.*)$/, "Ngày đầu trong file: $1"],
+  [/^(\d+) policies covered by 22h01 (.+) → 22h00 (.+)\.$/, "$1 đơn trong kỳ 22h01 $2 → 22h00 $3."],
+  [/^Skip hidden rows \((\d+)\)$/, "Bỏ dòng ẩn ($1)"], [/^Sheet (.+), column (.+), (\d+) links\.$/, "Sheet $1, cột $2, $3 link."],
+  [/^Sheet (.+), column (.+)$/, "Sheet $1, cột $2"], [/^(\d+) link\(s\) failed, see the table\.$/, "$1 link lỗi, xem bảng."],
+  [/^(\d+) of (\d+) done\. Each printout is added to the zip above\.$/, "Đã xong $1/$2. Mỗi bản in được thêm vào file zip ở trên."]
+];
+const ORIG = new WeakMap();
+function tr(s){
+  if(LANG !== "vi" || !s) return s;
+  const k = s.trim(); if(!k) return s;
+  let v = VI[k];
+  if(v === undefined) for(const [re, to] of VI_RE){ if(re.test(k)){ v = k.replace(re, to); break; } }
+  return v === undefined ? s : s.replace(k, v);
+}
+const KEEP = "td:not(.t),pre,code,textarea,.chip span,.keep";
+function trNode(n){
+  const p = n.parentElement; if(!p || p.closest(KEEP)) return;
+  const v = tr(n.nodeValue);
+  if(v !== n.nodeValue){ if(!ORIG.has(n)) ORIG.set(n, n.nodeValue); n.nodeValue = v; }
+}
+function trAttrs(el){
+  if(el.closest && el.closest(KEEP)) return;
+  for(const a of ["placeholder", "title"]){
+    const v0 = el.getAttribute(a); if(!v0) continue;
+    const v = tr(v0);
+    if(v !== v0){ if(!el.hasAttribute("data-en-" + a)) el.setAttribute("data-en-" + a, v0); el.setAttribute(a, v); }
+  }
+}
+function localize(root){
+  if(LANG !== "vi" || !root) return;
+  if(root.nodeType === 3) return trNode(root);
+  if(root.nodeType !== 1) return;
+  trAttrs(root); root.querySelectorAll("[placeholder],[title]").forEach(trAttrs);
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n;
+  while((n = w.nextNode())) trNode(n);
+}
+function unlocalize(){
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let n;
+  while((n = w.nextNode())) if(ORIG.has(n)){ n.nodeValue = ORIG.get(n); ORIG.delete(n); }
+  document.querySelectorAll("[data-en-placeholder],[data-en-title]").forEach(el => {
+    for(const a of ["placeholder", "title"]){ const v = el.getAttribute("data-en-" + a); if(v !== null){ el.setAttribute(a, v); el.removeAttribute("data-en-" + a); } }
+  });
+}
+new MutationObserver(ms => { if(LANG !== "vi") return; for(const m of ms) m.addedNodes.forEach(localize); })
+  .observe(document.body, {childList:true, subtree:true});
+function setLang(l){
+  LANG = l === "vi" ? "vi" : "en";
+  try { localStorage.setItem("ct_lang", LANG); } catch(e){}
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("#langSeg button").forEach(b => b.classList.toggle("on", b.dataset.l === LANG));
+  if(LANG === "vi") localize(document.body); else unlocalize();
+}
+
 // ------------------------------------------------------------ nav + theme
 function drawNav(){
   let h = "";
@@ -256,7 +501,7 @@ function drawNav(){
   });
   $("nav").innerHTML = h;
 }
-function setTheme(t){ document.documentElement.dataset.theme = t; $("themeBtn").textContent = t === "dark" ? "Light" : "Dark";
+function setTheme(t){ document.documentElement.dataset.theme = t; $("themeBtn").textContent = t === "dark" ? "Light mode" : "Dark mode";
   try { localStorage.setItem("ct_theme", t); } catch(e){} }
 function toggleTheme(){ setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"); }
 try { setTheme(localStorage.getItem("ct_theme") || "dark"); } catch(e){ setTheme("dark"); }
@@ -403,7 +648,7 @@ function resultHtml(t, r, j){
   }
   if(r.more && r.more.length) h += det("more-" + t, "Separate files (" + r.more.length + ")", '<div class="files">' + r.more.map(f => '<div class="file"><button class="btn" style="flex:1 1 220px;overflow:hidden;text-overflow:ellipsis;text-align:left" onclick="dl(' +
        esc(JSON.stringify(f.path)) + ')">Download ' + esc(f.name) + '</button><button class="btn" onclick="openPath(' + esc(JSON.stringify(f.path)) + ')">Open</button></div>').join("") + '</div>');
-  if(r.notes && r.notes.length) h += '<div class="caption">' + r.notes.map(esc).join(" · ") + '</div>';
+  if(r.notes && r.notes.length) h += '<div class="caption">' + r.notes.map(n => '<span>' + esc(n) + '</span>').join(" · ") + '</div>';
   if(EXTRA[t]) h += EXTRA[t](r, j);
   (r.tables || []).forEach((tb, i) => h += tableHtml(t, i, tb));
   if(r.details) h += det("det-" + t, "Details", '<pre>' + esc(r.details) + '</pre>');
@@ -460,7 +705,7 @@ function setDay(tool, key, el){
 }
 function typeTable(files){
   return '<div class="tw" style="margin-top:8px"><table><thead><tr><th>File</th><th>Type</th></tr></thead><tbody>' +
-    files.map(f => '<tr><td title="' + esc(f.name) + '">' + esc(f.name) + '</td><td>' + esc(f.type) + '</td></tr>').join("") + '</tbody></table></div>';
+    files.map(f => '<tr><td title="' + esc(f.name) + '">' + esc(f.name) + '</td><td class="t">' + esc(f.type) + '</td></tr>').join("") + '</tbody></table></div>';
 }
 async function look(tool, key, kind){
   const s = st(tool); s.insp = null;
@@ -618,7 +863,7 @@ function drawTax(){
   }
   const rows = v.todo.filter(t => t.status);
   if(rows.length) h += '<div class="tw" style="margin-top:12px"><table><thead><tr><th>Tax ID</th><th>Company</th><th>Status</th><th>Tax site result</th></tr></thead><tbody>' +
-    rows.map(t => '<tr><td>' + esc(t.mst) + '</td><td title="' + esc(t.name) + '">' + esc(t.name) + '</td><td>' + esc(t.status) + '</td><td title="' + esc(t.result) +
+    rows.map(t => '<tr><td>' + esc(t.mst) + '</td><td title="' + esc(t.name) + '">' + esc(t.name) + '</td><td class="t">' + esc(t.status) + '</td><td title="' + esc(t.result) +
     '">' + esc(t.result) + '</td></tr>').join("") + '</tbody></table></div>';
   box.innerHTML = h + '</div>';
   const inp = $("taxcode"); if(inp && !TAXBUSY) inp.focus();
@@ -632,7 +877,7 @@ VIEWS.kbank = () => {
   if(s.pw === undefined) s.pw = "Pvi@123";
   s.mode = s.mode || "separate";
   const can = ready("kbank", "file") && !busyT("kbank");
-  return '<div class="cols"><div class="card"><div class="no">Output</div>' +
+  return '<div class="cols"><div class="card"><div class="no">Output format</div>' +
     seg("kbank", "mode", [["separate", "Separate files (.zip)"], ["merged", "One merged Word file"]]) +
     '<div class="hint">' + (s.mode === "merged" ? "Every certificate in one .docx, one per page, easier to print." : "A .zip of individual .docx files, one per person.") + '</div>' +
     '<div class="no">Masterfile</div>' + field("kbank", "file", ".xlsx,.xls", false) +
@@ -674,12 +919,13 @@ DONE.update = () => { if(CUR === "upd") draw(); };
 EMPTY.update = "";
 async function restart(){ await api("/api/restart", {}); gone("Restarting..."); }
 async function quit(){
-  if(Object.values(JOBS).some(j => j.state === "running") && !confirm("A tool is still running. Quit and stop it?")) return;
+  if(Object.values(JOBS).some(j => j.state === "running") && !confirm(tr("A tool is still running. Quit and stop it?"))) return;
   await api("/api/quit", {}); gone("The tool is closed.");
 }
 
 // ------------------------------------------------------------ start
 async function init(){
+  setLang(LANG);
   api("/api/ping", {});
   const s = await api("/api/state");
   if(s.error) return;

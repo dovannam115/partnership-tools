@@ -1,3 +1,7 @@
+v1.0.1 (22/10/2026)
+- English / Tiếng Việt switch at the bottom of the left bar. The choice is remembered on this PC.
+- Handshake icon, the same as the Partnership web page.
+
 v1.0.0 (22/10/2026)
 - First desktop version of Partnership Tools: D2C VNPAY reconciliation, PTT slips (GSM), Invoice requests (XHD) with Tax ID printouts, Invoice PDFs, KBank certificates.
 - Unzip and run: the first start of Partnership Tools.bat adds a Partnership Tools shortcut to the Desktop and the Start menu.
