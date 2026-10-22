@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google" content="notranslate">
+<title>Partnership Tools</title>
+<link rel="icon" id="ico" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23183665'/%3E%3Ccircle cx='25' cy='32' r='11' fill='none' stroke='white' stroke-width='6'/%3E%3Ccircle cx='39' cy='32' r='11' fill='none' stroke='white' stroke-width='6'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#262624; --elev:#2F2D29; --card:#34322D; --hover:#3D3B36;
+    --line:#46443F; --line2:#4D4A45;
+    --fg:#F5F4ED; --muted:#A19D93; --dim:#777267;
+    --ember:#c96442; --ember-lit:#d97757;
+    --good:#34d399; --warn:#f59e0b; --bad:#f87171;
+    --console:#1F1E1C; --console-fg:#C9C5B9; --field:#262624;
+  }
+  :root[data-theme="light"]{
+    --bg:#FFFFFF; --elev:#F7F6F2; --card:#FFFFFF; --hover:#F1EFE9;
+    --line:#E6E3DB; --line2:#D6D2C8;
+    --fg:#1F1E1C; --muted:#6B675E; --dim:#9A958A;
+    --ember:#c96442; --ember-lit:#b8583a;
+    --good:#0f8a5f; --warn:#b26a00; --bad:#c2410c;
+    --console:#F7F6F2; --console-fg:#3D3B36; --field:#FFFFFF;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg); color:var(--fg); display:flex;
+       font:14px/1.45 "Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+       -webkit-font-smoothing:antialiased; letter-spacing:-.006em}
+  ::selection{background:rgba(217,119,87,.30)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  aside{width:240px; flex:0 0 240px; background:var(--elev); border-right:1px solid var(--line);
+        display:flex; flex-direction:column; padding:16px 12px; gap:16px; user-select:none}
+  .brand{padding:2px 6px 0; display:flex; align-items:center; gap:10px}
+  .brand img{width:34px; height:34px; border-radius:9px}
+  .brand b{display:block; font-size:13px; font-weight:700; letter-spacing:.02em; white-space:nowrap}
+  .brand span{display:block; color:var(--dim); font-size:11px; letter-spacing:.06em; margin-top:1px}
+  nav{display:flex; flex-direction:column; gap:2px; overflow:auto}
+  .grp-h{font-size:10.5px; color:var(--dim); letter-spacing:.12em; text-transform:uppercase; padding:12px 10px 4px}
+  .grp-h:first-child{padding-top:2px}
+  nav button{display:flex; align-items:center; justify-content:space-between; gap:8px; background:none; border:0;
+             color:var(--muted); text-align:left; cursor:pointer; padding:8px 10px; border-radius:9px;
+             font:inherit; font-size:13.5px}
+  nav button:hover{background:var(--hover); color:var(--fg)}
+  nav button.on{background:var(--card); color:var(--fg); box-shadow:0 0 0 1px var(--line) inset}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--good);display:none;flex:0 0 7px}
+  .dot.run{display:block;background:var(--ember);animation:pulse 1.2s ease-in-out infinite}
+  .dot.ok{display:block;background:var(--good)}
+  .dot.bad{display:block;background:var(--bad)}
+  .dot.new{display:block;background:var(--good)}
+  @keyframes pulse{50%{opacity:.35}}
+  .side-end{margin-top:auto; display:flex; flex-direction:column; gap:6px; padding:0 2px}
+  .side-end .row{display:flex; gap:6px}
+  .ver{color:var(--dim); font-size:11.5px; padding:2px 8px 0}
+
+  main{flex:1; min-width:0; display:flex; flex-direction:column}
+  header{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:14px 22px 12px;
+         border-bottom:1px solid var(--line); min-height:58px}
+  header h1{font-size:17px; margin:0; font-weight:650; white-space:nowrap}
+  header .sp{flex:1}
+  .wrap{flex:1; overflow:auto; padding:18px 22px 26px}
+  .cols{display:grid; grid-template-columns:minmax(300px,380px) minmax(0,1fr); gap:14px; align-items:start}
+  @media (max-width:980px){.cols{grid-template-columns:1fr}}
+  .stack{display:flex; flex-direction:column; gap:14px; min-width:0}
+
+  button{font:inherit; cursor:pointer; white-space:nowrap; transition:background .18s,border-color .18s,color .18s,opacity .18s}
+  button:active:not(:disabled){transform:scale(.985)}
+  .btn{background:var(--card); color:var(--fg); border:1px solid var(--line); padding:8px 13px; border-radius:9px}
+  .btn:hover:not(:disabled){background:var(--hover); border-color:var(--line2)}
+  .btn.pri{background:var(--ember); border-color:var(--ember); color:#fff}
+  .btn.pri:hover:not(:disabled){background:var(--ember-lit); border-color:var(--ember-lit)}
+  .btn.sm{padding:5px 10px; border-radius:8px; font-size:12.5px}
+  .btn.gho{background:transparent}
+  .btn.wide{width:100%}
+  .btn:disabled{opacity:.42; cursor:default}
+  .link{background:none; border:0; color:var(--ember-lit); padding:0; font-size:12.5px; cursor:pointer}
+  .link:hover{text-decoration:underline}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:13px; padding:15px 16px; min-width:0}
+  .card h2{margin:0 0 10px; font-size:13.5px; font-weight:650}
+  .no{font-size:10.5px; color:var(--dim); letter-spacing:.12em; text-transform:uppercase; margin:14px 0 6px}
+  .no:first-child{margin-top:0}
+  .muted{color:var(--muted); font-size:12.5px}
+  .hint{color:var(--dim); font-size:12px; margin-top:6px}
+  .hide{display:none !important}
+
+  .drop{border:1.5px dashed var(--line2); border-radius:11px; padding:14px; text-align:center; color:var(--muted);
+        font-size:13px; cursor:pointer}
+  .drop:hover,.drop.on{border-color:var(--ember); color:var(--fg); background:rgba(201,100,66,.06)}
+  .chips{display:flex; flex-direction:column; gap:6px; margin-top:8px}
+  .chip{display:flex; align-items:center; gap:8px; background:var(--elev); border:1px solid var(--line); border-radius:9px;
+        padding:7px 10px; font-size:12.5px; min-width:0}
+  .chip span{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .chip i{font-style:normal; color:var(--dim)}
+  .chip button{background:none; border:0; color:var(--dim); font-size:15px; line-height:1; padding:0 2px}
+  .chip button:hover{color:var(--bad)}
+
+  .inp,select,textarea{background:var(--field); border:1px solid var(--line); color:var(--fg); border-radius:9px;
+        padding:8px 11px; font:inherit; font-size:13px; width:100%}
+  textarea{resize:vertical; font-family:ui-monospace,"Cascadia Mono",Consolas,monospace; font-size:12.5px}
+  .inp:focus,select:focus,textarea:focus{outline:none; border-color:var(--line2)}
+  .seg{display:flex; background:var(--elev); border:1px solid var(--line); border-radius:10px; padding:3px; gap:3px}
+  .seg button{flex:1; background:none; border:0; color:var(--muted); padding:6px 8px; border-radius:7px; font-size:12.5px}
+  .seg button.on{background:var(--card); color:var(--fg); box-shadow:0 0 0 1px var(--line) inset}
+  label.ck{display:flex; align-items:center; gap:7px; color:var(--muted); font-size:12.5px; cursor:pointer; margin:4px 0}
+  input[type=checkbox],input[type=radio]{accent-color:var(--ember); width:14px; height:14px; cursor:pointer; margin:0}
+  .act{margin-top:16px; display:flex; gap:8px}
+  .act .btn.pri{flex:1}
+
+  .status{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--muted); flex-wrap:wrap}
+  .status .dot{display:block}
+  .note{border-radius:10px; padding:9px 12px; font-size:12.5px; margin-top:10px}
+  .note.ok{background:rgba(52,211,153,.10); color:var(--good)}
+  .note.warn{background:rgba(245,158,11,.11); color:var(--warn)}
+  .note.bad{background:rgba(248,113,113,.11); color:var(--bad)}
+  .note ul{margin:4px 0 0; padding-left:18px}
+  .code{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(201,100,66,.12);
+        border:1px solid rgba(201,100,66,.4); border-radius:11px; padding:11px 13px; margin-top:8px}
+  .code b{font:600 18px/1 ui-monospace,Consolas,monospace; letter-spacing:.12em; color:var(--fg)}
+
+  .empty{color:var(--muted); font-size:13px; padding:28px 6px; text-align:center}
+  .runhead{display:flex; align-items:center; gap:10px}
+  .runhead b{font-size:13.5px}
+  .runhead .sp{flex:1}
+  .bar{height:6px; background:var(--elev); border-radius:6px; overflow:hidden; margin-top:12px}
+  .bar div{height:100%; background:var(--ember); width:0; transition:width .4s}
+  .barlbl{display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-top:6px; gap:10px}
+  .barlbl span:first-child{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .spin{width:13px;height:13px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--ember);animation:sp .7s linear infinite;flex:0 0 13px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  pre{margin:8px 0 0; background:var(--console); color:var(--console-fg); border:1px solid var(--line); border-radius:11px;
+      padding:11px 13px; max-height:34vh; overflow:auto; font:12.2px/1.55 ui-monospace,"Cascadia Mono",Consolas,monospace;
+      white-space:pre-wrap; word-break:break-word}
+  details{margin-top:12px}
+  summary{cursor:pointer; color:var(--muted); font-size:12.5px; user-select:none}
+  summary:hover{color:var(--fg)}
+
+  .stats{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+  .stat{flex:1 1 120px; background:var(--elev); border:1px solid var(--line); border-radius:11px; padding:10px 13px; min-width:0}
+  .stat div{font-size:11px; color:var(--dim); letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .stat b{display:block; font-size:21px; font-weight:650; margin-top:2px; font-variant-numeric:tabular-nums; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .stat b.good{color:var(--good)} .stat b.warn{color:var(--warn)} .stat b.bad{color:var(--bad)}
+  .files{display:flex; flex-direction:column; gap:8px; margin-top:12px}
+  .file{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+  .file .btn.pri{flex:1 1 220px; overflow:hidden; text-overflow:ellipsis; text-align:left}
+  .caption{color:var(--muted); font-size:12px; margin-top:10px}
+
+  .tbl{margin-top:16px}
+  .tblh{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px}
+  .tblh h3{margin:0; font-size:12.5px; font-weight:650; margin-right:6px}
+  .views{display:flex; gap:4px; flex-wrap:wrap}
+  .views button{background:none; border:1px solid var(--line); color:var(--muted); border-radius:999px; padding:3px 10px; font-size:12px}
+  .views button.on{background:var(--ember); border-color:var(--ember); color:#fff}
+  .tw{overflow:auto; max-height:56vh; border:1px solid var(--line); border-radius:10px}
+  table{border-collapse:collapse; width:100%; font-size:12.5px}
+  th{position:sticky; top:0; background:var(--elev); text-align:left; font-size:10.5px; font-weight:600; color:var(--dim);
+     text-transform:uppercase; letter-spacing:.06em; padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; z-index:1}
+  td{padding:6px 10px; border-bottom:1px solid var(--line); white-space:nowrap; max-width:420px; overflow:hidden; text-overflow:ellipsis}
+  td.wrap{white-space:normal; min-width:380px; max-width:620px}
+  td.n{text-align:right; font-variant-numeric:tabular-nums}
+  tbody tr:hover td{background:var(--hover)}
+  tr:last-child td{border-bottom:0}
+  .more{color:var(--dim); font-size:12px; margin-top:6px}
+
+  .colchk td{white-space:normal}
+  .big{font-size:22px; font-weight:650}
+  .notes{background:var(--console); border:1px solid var(--line); border-radius:11px; padding:11px 13px; color:var(--console-fg);
+         font:12.5px/1.6 ui-monospace,Consolas,monospace; white-space:pre-wrap; max-height:34vh; overflow:auto}
+  #fabbox{margin-bottom:14px} #fabbox:empty{display:none} #fabbox:has(.veil){margin:0}
+  .veil{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; z-index:30; padding:16px}
+  .modal{background:var(--card); border:1px solid var(--line); border-radius:14px; width:min(560px,100%); padding:18px 20px;
+         box-shadow:0 18px 50px rgba(0,0,0,.35)}
+  .modal h2{margin:0 0 10px; font-size:15px}
+  .toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--fg); color:var(--bg);
+         padding:9px 16px; border-radius:10px; font-size:13px; z-index:50; box-shadow:0 8px 30px rgba(0,0,0,.25)}
+</style>
+</head>
+<body>
+<aside>
+  <div class="brand"><img id="logo" alt=""><div><b>Partnership Tools</b><span>PVI Digital</span></div></div>
+  <nav id="nav"></nav>
+  <div class="side-end">
+    <div class="row">
+      <button class="btn sm gho" style="flex:1" onclick="openOut()" title="Open the folder with every result file">Output</button>
+      <button class="btn sm gho" style="flex:1" id="themeBtn" onclick="toggleTheme()">Light</button>
+    </div>
+    <button class="btn sm gho" onclick="quit()">Quit</button>
+    <div class="ver" id="ver">v...</div>
+  </div>
+</aside>
+
+<main>
+  <header><h1 id="title"></h1><div class="sp"></div><div id="hstatus" class="status"></div></header>
+  <div class="wrap" id="view"></div>
+</main>
+<input type="file" id="fpick" class="hide">
+
+<script>
+const T = new URLSearchParams(location.search).get("t") || "";
+const $ = (id) => document.getElementById(id);
+$("logo").src = $("ico").href;
+
+const NAV = [
+  ["Reconcile", [["d2c","D2C VNPAY"]]],
+  ["Slips & invoices", [["ptt","PTT slips (GSM)"],["xhd","Invoice requests (XHĐ)"],["inv","Invoice PDFs"]]],
+  ["Certificates", [["kbank","KBank certificates"]]],
+  ["", [["upd","Update"]]],
+];
+const TITLES = {}; NAV.forEach(([,it]) => it.forEach(([k,t]) => TITLES[k] = t));
+const S = {};            // per-tool form state, kept while switching tools
+let CUR = "", ENV = null, FAB = null, VER = "", UPDINFO = null;
+const JOBS = {};         // tool -> last job view {state, lines, ...}
+let dead = 0;
+
+// ------------------------------------------------------------ helpers
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function toast(msg){ const d = document.createElement("div"); d.className = "toast"; d.textContent = msg;
+  document.body.appendChild(d); setTimeout(() => d.remove(), 2600); }
+async function api(path, body){
+  const o = {headers:{"X-Token":T, "Content-Type":"application/json"}};
+  if(body !== undefined){ o.method = "POST"; o.body = JSON.stringify(body); }
+  let r;
+  try { r = await fetch(path, o); dead = 0; }
+  catch(e){ if(++dead >= 3) gone(); return {error:"offline"}; }
+  if(r.status === 403){ gone("This window is from an older start. Close it and open the tool again."); return {error:"token"}; }
+  try { return await r.json(); } catch(e){ return {error:"bad reply"}; }
+}
+function gone(msg){ document.body.innerHTML = '<div class="empty" style="margin:auto">' + esc(msg || "The tool has closed. Open it again from the shortcut.") + '</div>'; }
+function fmt(v){
+  if(v === null || v === undefined) return "";
+  if(typeof v === "number") return Number.isInteger(v) ? v.toLocaleString("vi-VN") : v.toLocaleString("vi-VN", {maximumFractionDigits:2});
+  return String(v);
+}
+function dl(path){ location.href = "/api/file?t=" + T + "&path=" + encodeURIComponent(path); }
+async function openPath(path, select){ const r = await api("/api/open", {path, select:!!select}); if(r.error) toast(r.error); }
+async function openUrl(url){ const r = await api("/api/open", {url}); if(r.error) toast(r.error); }
+function openOut(){ api("/api/open", {what:"output"}); }
+function st(tool){ return S[tool] || (S[tool] = {}); }
+
+// ------------------------------------------------------------ nav + theme
+function drawNav(){
+  let h = "";
+  NAV.forEach(([g, items]) => {
+    if(g) h += '<div class="grp-h">' + esc(g) + '</div>'; else h += '<div class="grp-h">&nbsp;</div>';
+    items.forEach(([k, t]) => {
+      const j = JOBS[k]; let dot = "";
+      if(j && j.state === "running") dot = "run";
+      else if(k === "upd" && UPDINFO && UPDINFO.available) dot = "new";
+      h += '<button id="nav-' + k + '" class="' + (k === CUR ? "on" : "") + '" onclick="go(\'' + k + '\')">' +
+           esc(t) + '<span class="dot ' + dot + '"></span></button>';
+    });
+  });
+  $("nav").innerHTML = h;
+}
+function setTheme(t){ document.documentElement.dataset.theme = t; $("themeBtn").textContent = t === "dark" ? "Light" : "Dark";
+  try { localStorage.setItem("ct_theme", t); } catch(e){} }
+function toggleTheme(){ setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"); }
+try { setTheme(localStorage.getItem("ct_theme") || "dark"); } catch(e){ setTheme("dark"); }
+
+function go(k){
+  CUR = k; try { localStorage.setItem("ct_tool", k); } catch(e){}
+  $("title").textContent = TITLES[k] || "";
+  drawNav(); draw();
+}
+function draw(){
+  const f = VIEWS[CUR]; $("hstatus").innerHTML = "";
+  $("view").innerHTML = f ? f() : "";
+  if(HEAD[CUR]) HEAD[CUR]();
+  if(AFTER[CUR]) AFTER[CUR]();
+  drawRun(CUR);
+}
+
+// ------------------------------------------------------------ file fields
+// field(tool, key, accept, multi): a drop area + chosen files; files upload at once, the run sends their ids
+function field(tool, key, accept, multi, label){
+  const s = st(tool), files = s[key] || [];
+  let h = '<div class="drop" ondragover="event.preventDefault();this.classList.add(\'on\')" ondragleave="this.classList.remove(\'on\')" ' +
+          'ondrop="dropFiles(event,\'' + tool + '\',\'' + key + '\',' + (multi ? 1 : 0) + ')" ' +
+          'onclick="pick(\'' + tool + '\',\'' + key + '\',\'' + accept + '\',' + (multi ? 1 : 0) + ')">' +
+          esc(label || (multi ? "Drop files here or click to choose" : "Drop a file here or click to choose")) + '</div>';
+  if(files.length){
+    h += '<div class="chips">' + files.map((f, i) => '<div class="chip"><span title="' + esc(f.name) + '">' + esc(f.name) +
+         '</span><i>' + (f.up ? "uploading..." : Math.max(1, Math.round(f.size/1024)).toLocaleString() + " KB") +
+         '</i><button title="Remove" onclick="unpick(\'' + tool + '\',\'' + key + '\',' + i + ')">×</button></div>').join("") + '</div>';
+  }
+  return h;
+}
+function pick(tool, key, accept, multi){
+  const fp = $("fpick"); fp.value = ""; fp.accept = accept; fp.multiple = !!multi;
+  fp.onchange = () => addFiles(tool, key, [...fp.files], multi);
+  fp.click();
+}
+function dropFiles(ev, tool, key, multi){ ev.preventDefault(); ev.currentTarget.classList.remove("on");
+  addFiles(tool, key, [...ev.dataTransfer.files], multi); }
+async function addFiles(tool, key, list, multi){
+  if(!list.length) return;
+  const s = st(tool);
+  if(!multi){ list = list.slice(0, 1); s[key] = []; }
+  s[key] = s[key] || [];
+  const items = list.map(f => ({name:f.name, size:f.size, up:true}));
+  s[key].push(...items);
+  if(CUR === tool) draw();
+  for(let i = 0; i < list.length; i++){
+    let r;
+    try {
+      const res = await fetch("/api/upload?t=" + T + "&name=" + encodeURIComponent(list[i].name), {method:"POST", body:list[i]});
+      r = await res.json();
+    } catch(e){ r = {error:"upload failed"}; }
+    if(r.error){ toast(list[i].name + ": " + r.error); s[key] = s[key].filter(x => x !== items[i]); }
+    else { items[i].id = r.id; items[i].up = false; }
+  }
+  if(ONFILE[tool]) await ONFILE[tool](key);
+  if(CUR === tool) draw();
+}
+function unpick(tool, key, i){ const s = st(tool); s[key].splice(i, 1); if(ONFILE[tool]) ONFILE[tool](key, true); draw(); }
+function ready(tool, key){ const f = st(tool)[key] || []; return f.length && f.every(x => x.id); }
+function ids(tool, key){ return (st(tool)[key] || []).map(x => x.id); }
+function seg(tool, key, opts, onchg){
+  const v = st(tool)[key];
+  return '<div class="seg">' + opts.map(([k, t]) => '<button class="' + (v === k ? "on" : "") + '" onclick="S[\'' + tool +
+         '\'][\'' + key + '\']=\'' + k + '\';' + (onchg || "") + 'draw()">' + esc(t) + '</button>').join("") + '</div>';
+}
+function tmplLink(name, label){ return '<button class="link" onclick="location.href=\'/api/template?t=' + T + '&name=' + name + '\'">' + esc(label) + '</button>'; }
+
+// ------------------------------------------------------------ run + result panel
+async function run(tool, args, label){
+  const r = await api("/api/run", {tool, args, label});
+  if(r.error){ toast(r.error); return; }
+  JOBS[tool] = {state:"running", lines:[], total:0, progress:null, label, result:null};
+  drawNav(); if(CUR === tool || panelFor(CUR).includes(tool)) draw(); else drawRun(CUR); poll();
+  const box = $("run-" + tool); if(box) box.scrollIntoView({block:"nearest", behavior:"smooth"});
+}
+async function stopJob(tool){ await api("/api/stop", {tool}); toast("Stopped"); }
+let polling = null;
+function poll(){
+  if(polling) return;
+  polling = setInterval(async () => {
+    const live = Object.keys(JOBS).filter(t => JOBS[t].state === "running");
+    if(!live.length){ clearInterval(polling); polling = null; return; }
+    for(const t of live){
+      const j = JOBS[t];
+      const r = await api("/api/job?tool=" + t + "&since=" + (j.total || 0));
+      if(!r.job) continue;
+      const v = r.job;
+      j.lines = (j.lines || []).concat(v.lines); j.total = v.total;
+      Object.assign(j, {state:v.state, progress:v.progress, code:v.code, error:v.error, result:v.result, dir:v.dir, elapsed:v.elapsed});
+      if(v.state !== "running"){ drawNav(); if(DONE[t]) DONE[t](j); if(t === CUR || panelFor(CUR).includes(t)){ draw(); continue; } }
+      if(t === CUR) drawRun(CUR);
+    }
+  }, 700);
+}
+function panelFor(tool){ return tool === "upd" ? ["update"] : [tool]; }
+function drawRun(tool){
+  if(HEAD[tool]) HEAD[tool]();
+  panelFor(tool).forEach(t => {
+    const box = $("run-" + t); if(!box) return;
+    const j = JOBS[t];
+    if(!j){ box.innerHTML = '<div class="empty">' + esc(EMPTY[t] || "Results show here.") + '</div>'; return; }
+    box.innerHTML = runHtml(t, j);
+  });
+}
+function runHtml(t, j){
+  let h = "";
+  if(j.state === "running"){
+    const p = j.progress, pct = p && p.total ? Math.round(100 * p.done / p.total) : 0;
+    h += '<div class="runhead"><span class="spin"></span><b>' + esc(j.label) + '</b><span class="muted">' + esc(secs(j.elapsed)) + '</span><div class="sp"></div>' +
+         '<button class="btn sm gho" onclick="stopJob(\'' + t + '\')">Stop</button></div>';
+    if(p){ h += '<div class="bar"><div style="width:' + pct + '%"></div></div><div class="barlbl"><span>' + esc(p.label) + '</span><span>' +
+         p.done + '/' + p.total + '</span></div>'; }
+    else if(j.lines && j.lines.length){ h += '<div class="caption">' + esc(j.lines[j.lines.length - 1]) + '</div>'; }
+    h += det("log-" + t, "Log", '<pre>' + esc((j.lines || []).join("\n")) + '</pre>');
+    return h;
+  }
+  if(j.state === "failed" || j.state === "stopped"){
+    h += '<div class="runhead"><b>' + esc(j.label) + '</b><div class="sp"></div><span class="muted">' + esc(secs(j.elapsed)) + '</span></div>';
+    h += '<div class="note bad">' + esc(j.state === "stopped" ? "Stopped." : (j.error || "The run failed.")) + '</div>';
+    if(j.result && j.result.trace) h += det("tr-" + t, "Technical detail", '<pre>' + esc(j.result.trace) + '</pre>');
+    h += det("log-" + t, "Log", '<pre>' + esc((j.lines || []).join("\n")) + '</pre>');
+    return h;
+  }
+  return '<div class="runhead"><b>' + esc(j.label) + '</b><div class="sp"></div><span class="muted">Done in ' + esc(secs(j.elapsed)) + '</span></div>' +
+         resultHtml(t, j.result || {}, j) + det("log-" + t, "Log", '<pre>' + esc((j.lines || []).join("\n")) + '</pre>');
+}
+const OPEN = {};
+function det(k, summary, body){
+  return '<details data-k="' + k + '" ontoggle="OPEN[this.dataset.k]=this.open" ' + (OPEN[k] ? "open" : "") + '><summary>' + summary + '</summary>' + body + '</details>';
+}
+function secs(s){ if(s === undefined) return ""; s = +s; return s < 60 ? s + " s" : Math.floor(s/60) + " min " + (s % 60) + " s"; }
+function resultHtml(t, r, j){
+  let h = "";
+  if(r.stats && r.stats.length) h += '<div class="stats">' + r.stats.map(s => '<div class="stat"><div title="' + esc(s.label) + '">' + esc(s.label) +
+       '</div><b class="' + esc(s.tone || "") + '" title="' + esc(fmt(s.value)) + '">' + esc(fmt(s.value)) + '</b></div>').join("") + '</div>';
+  if(r.warns && r.warns.length) h += '<div class="note warn"><b>' + r.warns.length + ' warning' + (r.warns.length > 1 ? "s" : "") + '</b><ul>' +
+       r.warns.map(w => '<li>' + esc(w) + '</li>').join("") + '</ul></div>';
+  if(r.files && r.files.length){
+    h += '<div class="files">' + r.files.map(f => '<div class="file"><button class="btn pri" onclick="dl(' + esc(JSON.stringify(f.path)) + ')" title="Save a copy to Downloads">Download ' + esc(f.name) +
+         '</button><button class="btn" onclick="openPath(' + esc(JSON.stringify(f.path)) + ')">Open</button><button class="btn gho" onclick="openPath(' +
+         esc(JSON.stringify(f.path)) + ',1)" title="Show the file in its folder">Folder</button></div>').join("") + '</div>';
+  }
+  if(r.more && r.more.length) h += det("more-" + t, "Separate files (" + r.more.length + ")", '<div class="files">' + r.more.map(f => '<div class="file"><button class="btn" style="flex:1 1 220px;overflow:hidden;text-overflow:ellipsis;text-align:left" onclick="dl(' +
+       esc(JSON.stringify(f.path)) + ')">Download ' + esc(f.name) + '</button><button class="btn" onclick="openPath(' + esc(JSON.stringify(f.path)) + ')">Open</button></div>').join("") + '</div>');
+  if(r.notes && r.notes.length) h += '<div class="caption">' + r.notes.map(esc).join(" · ") + '</div>';
+  if(EXTRA[t]) h += EXTRA[t](r, j);
+  (r.tables || []).forEach((tb, i) => h += tableHtml(t, i, tb));
+  if(r.details) h += det("det-" + t, "Details", '<pre>' + esc(r.details) + '</pre>');
+  return h;
+}
+const TV = {};   // table view state: key -> {view, main}
+function tableHtml(t, i, tb){
+  const key = t + ":" + i, s = TV[key] || (TV[key] = {view:0, main:false});
+  let idx = tb.rows.map((_, k) => k);
+  if(tb.views && tb.views[s.view]) idx = tb.views[s.view].rows;
+  let cols = tb.cols.map((c, k) => k);
+  if(tb.main && s.main) cols = tb.main;
+  const LIM = 400, shown = idx.slice(0, LIM);
+  let h = '<div class="tbl"><div class="tblh"><h3>' + esc(tb.title) + '</h3>';
+  if(tb.views) h += '<div class="views">' + tb.views.map((v, k) => '<button class="' + (k === s.view ? "on" : "") + '" onclick="TV[\'' + key +
+       '\'].view=' + k + ';drawRun(CUR)">' + esc(v.label) + '</button>').join("") + '</div>';
+  if(tb.main) h += '<label class="ck" style="margin-left:auto"><input type="checkbox" ' + (s.main ? "checked" : "") + ' onchange="TV[\'' + key +
+       '\'].main=this.checked;drawRun(CUR)">Main columns only</label>';
+  h += '</div>';
+  if(!shown.length) return h + '<div class="muted">No rows here.</div></div>';
+  const links = new Set(tb.links || []);
+  h += '<div class="tw"><table><thead><tr>' + cols.map(c => '<th>' + esc(tb.cols[c]) + '</th>').join("") + '</tr></thead><tbody>';
+  shown.forEach(k => {
+    const row = tb.rows[k];
+    h += '<tr>' + cols.map(c => {
+      const v = row[c], name = tb.cols[c];
+      if(links.has(name)) return '<td>' + (v ? '<button class="link" onclick="openUrl(' + esc(JSON.stringify(v)) + ')">Open</button>' : "") + '</td>';
+      const long = /Lưu ý|Ghi chú|Note/i.test(name);
+      return '<td class="' + (typeof v === "number" ? "n" : long ? "wrap" : "") + '" title="' + esc(fmt(v)) + '">' + esc(fmt(v)) + '</td>';
+    }).join("") + '</tr>';
+  });
+  h += '</tbody></table></div>';
+  const total = tb.views && tb.views[s.view] ? idx.length : tb.total;
+  if(total > shown.length) h += '<div class="more">Showing ' + shown.length + ' of ' + total.toLocaleString() + ' rows. The file has all of them.</div>';
+  return h + '</div>';
+}
+
+// ------------------------------------------------------------ tools
+const VIEWS = {}, HEAD = {}, AFTER = {}, ONFILE = {}, DONE = {}, EXTRA = {}, EMPTY = {};
+const busyT = (t) => JOBS[t] && JOBS[t].state === "running";
+const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+const ddmm = (iso) => iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) + "/" + iso.slice(0, 4) : "";
+// dd/mm/yyyy typed by hand: a date picker follows the browser language and shows mm/dd/yyyy on English Edge
+function dateBox(tool, key, label){
+  return '<div style="flex:1;min-width:0"><div class="hint" style="margin:0 0 4px">' + esc(label) + '</div><input class="inp" placeholder="dd/mm/yyyy" value="' +
+         esc(ddmm(st(tool)[key] || "")) + '" onchange="setDay(\'' + tool + '\',\'' + key + '\',this)"></div>';
+}
+function setDay(tool, key, el){
+  const m = el.value.trim().match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);
+  const iso = m ? m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0") : "";
+  const d = iso ? new Date(iso + "T00:00:00") : null;
+  if(!d || isNaN(d) || d.getDate() !== +m[1]){ toast("Type the date as dd/mm/yyyy"); el.value = ddmm(st(tool)[key] || ""); return; }
+  st(tool)[key] = iso; draw();
+}
+function typeTable(files){
+  return '<div class="tw" style="margin-top:8px"><table><thead><tr><th>File</th><th>Type</th></tr></thead><tbody>' +
+    files.map(f => '<tr><td title="' + esc(f.name) + '">' + esc(f.name) + '</td><td>' + esc(f.type) + '</td></tr>').join("") + '</tbody></table></div>';
+}
+async function look(tool, key, kind){
+  const s = st(tool); s.insp = null;
+  if(!ready(tool, key)) return;
+  s.inspecting = true; if(CUR === tool) draw();
+  s.insp = await api("/api/inspect", {kind, ids:ids(tool, key)});
+  s.inspecting = false;
+}
+function reading(s){ return s.inspecting ? '<div class="status" style="margin-top:10px"><span class="spin"></span>Reading the files...</div>' : ""; }
+
+// ---- D2C VNPAY
+EMPTY.d2c = "Add the files of the month, then Run. You get the reconciliation workbook with the Cảnh báo and Treo sheets.";
+VIEWS.d2c = () => {
+  const s = st("d2c"), i = s.insp;
+  let h = '<div class="cols"><div class="card"><div class="no">Files of the month</div>' +
+    field("d2c", "files", ".xlsx,.csv", true, "Drop the 8 files here or click to choose") +
+    '<div class="hint">VNPAY*.xlsx (1), ADMIN*.csv (2), PIAS*.xlsx (4), *HÓA ĐƠN THU PHÍ*.xlsx (1). The type is read from the file name.</div>' + reading(s);
+  if(i && i.error) h += '<div class="note bad">' + esc(i.error) + '</div>';
+  if(i && i.files){
+    h += typeTable(i.files);
+    i.block.forEach(b => h += '<div class="note bad">' + esc(b) + '</div>');
+    i.warn.forEach(w => h += '<div class="note warn">' + esc(w) + '</div>');
+  }
+  if(ENV && !ENV.excel) h += '<div class="note warn">Excel is not on this PC, so the formulas are not recalculated. Open the result in Excel once before sending.</div>';
+  const can = i && i.files && !i.block.length && !busyT("d2c");
+  h += '<div class="act"><button class="btn pri" ' + (can ? "" : "disabled") + ' onclick="run(\'d2c\',{files:ids(\'d2c\',\'files\')},\'D2C VNPAY reconciliation\')">Run</button></div>';
+  return h + '</div><div class="card" id="run-d2c"></div></div>';
+};
+ONFILE.d2c = (key, removed) => look("d2c", "files", "d2c");
+
+// ---- PTT slips (GSM)
+EMPTY.ptt = "Add the VCND and TNCN exports from PIAS. The period is filled in from the files, check it, then Make slips.";
+VIEWS.ptt = () => {
+  const s = st("ptt"), i = s.insp;
+  if(!s.lap) s.lap = today();
+  let h = '<div class="cols"><div class="card"><div class="no">PIAS exports</div>' +
+    field("ptt", "files", ".xlsx,.xlsm", true, "Drop the VCND and TNCN exports here") +
+    '<div class="hint">Straight from PIAS, no editing. One of the two alone also works.</div>' + reading(s);
+  let n = 0;
+  if(i && i.error) h += '<div class="note bad">' + esc(i.error) + '</div>';
+  if(i && i.per_start){
+    if(!s.tu) { s.tu = i.tu; s.den = i.den; }
+    h += '<div class="no">Period</div><div class="hint" style="margin-top:0">Ngày đầu in the files: ' +
+         esc(i.per_start.slice(0, 10).map(([d, c]) => ddmm(d).slice(0, 5) + " (" + c + ")").join(", ") + (i.per_start.length > 10 ? " ..." : "")) + '</div>' +
+         '<div style="display:flex;gap:8px;margin-top:8px">' + dateBox("ptt", "tu", "From (Ngày đầu)") + dateBox("ptt", "den", "To (Ngày cuối)") + '</div>';
+    if(s.den <= s.tu) h += '<div class="note warn">The Ngày cuối has to be after the Ngày đầu.</div>';
+    else {
+      n = i.per_start.filter(([d]) => d >= s.tu && d < s.den).reduce((a, [, c]) => a + c, 0);
+      h += n ? '<div class="hint">' + n + ' policies covered by 22h01 ' + ddmm(s.tu) + ' → 22h00 ' + ddmm(s.den) + '.</div>'
+             : '<div class="note warn">No policy starts inside this period in these files.</div>';
+    }
+    h += '<div style="display:flex;gap:8px;margin-top:10px">' + dateBox("ptt", "lap", "Slip date") + '<div style="flex:1"></div></div>';
+    (i.warns || []).forEach(w => h += '<div class="note warn">' + esc(w) + '</div>');
+  }
+  const can = n > 0 && s.den > s.tu && !busyT("ptt");
+  h += '<div class="act"><button class="btn pri" ' + (can ? "" : "disabled") + ' onclick="run(\'ptt\',{files:ids(\'ptt\',\'files\'),tu:S.ptt.tu,den:S.ptt.den,lap:S.ptt.lap},\'PTT slips\')">Make slips</button></div>';
+  return h + '</div><div class="card" id="run-ptt"></div></div>';
+};
+ONFILE.ptt = (key, removed) => { const s = st("ptt"); s.tu = s.den = ""; return look("ptt", "files", "ptt"); };
+
+// ---- Invoice PDFs
+EMPTY.inv = "Add the Excel file with the invoice links. Duplicate links are dropped, the PDFs come back merged in row order, ready to print.";
+VIEWS.inv = () => {
+  const s = st("inv"), i = s.insp;
+  if(s.vis === undefined) s.vis = true;
+  let h = '<div class="cols"><div class="card"><div class="no">File with invoice links</div>' + field("inv", "file", ".xlsx,.xlsm", false) +
+    '<div class="hint">The column with the most links is used. Links from a formula are read from the values Excel saved last time.</div>' + reading(s);
+  let n = 0;
+  if(i && i.error) h += '<div class="note bad">' + esc(i.error) + '</div>';
+  if(i && i.links !== undefined){
+    const vis = i.hidden && s.vis;
+    n = vis ? i.n_vis : i.n;
+    if(i.hidden) h += '<label class="ck" style="margin-top:10px"><input type="checkbox" ' + (s.vis ? "checked" : "") + ' onchange="S.inv.vis=this.checked;draw()">Skip hidden rows (' + i.hidden + ')</label>';
+    h += '<div class="stats"><div class="stat"><div>Invoices to get</div><b>' + n + '</b></div><div class="stat"><div>Duplicates removed</div><b>' + (vis ? i.dup_vis : i.dup) + '</b></div></div>' +
+         '<div class="hint">Sheet ' + esc(i.sheet) + ', column ' + esc(i.col) + (i.header ? ' (' + esc(i.header) + ')' : '') + ', ' + i.links + ' links.</div>';
+  }
+  const can = n > 0 && !busyT("inv");
+  h += '<div class="act"><button class="btn pri" ' + (can ? "" : "disabled") + ' onclick="run(\'inv\',{file:ids(\'inv\',\'file\')[0],visible_only:!!(S.inv.insp.hidden&&S.inv.vis)},\'Invoice PDFs\')">Get PDFs</button></div>';
+  return h + '</div><div class="card" id="run-inv"></div></div>';
+};
+ONFILE.inv = (key, removed) => look("inv", "file", "inv");
+
+// ---- Invoice requests (XHD)
+EMPTY.xhd = "Add the request list, the HÓA ĐƠN THU PHÍ export and the PIAS exports. You get the slips on request, the bulk slips and the Excel files in one zip.";
+VIEWS.xhd = () => {
+  const s = st("xhd"), i = s.insp;
+  if(!s.lap) s.lap = today();
+  if(s.online === undefined) s.online = true;
+  let h = '<div class="cols"><div class="card"><div class="no">Files</div>' +
+    field("xhd", "files", ".xlsx,.xlsm", true, "Drop the request list, HÓA ĐƠN THU PHÍ and PIAS exports here") + reading(s);
+  let ok = false;
+  if(i && i.error) h += '<div class="note bad">' + esc(i.error) + '</div>';
+  if(i && i.files){
+    h += typeTable(i.files);
+    const kinds = i.files.map(f => f.kind);
+    if(!kinds.includes("invoices")) h += '<div class="note warn">Add the invoice ledger (HÓA ĐƠN THU PHÍ export).</div>';
+    else if(!kinds.includes("requests") && !kinds.includes("pias")) h += '<div class="note warn">Add the request list and/or the PIAS exports.</div>';
+    else ok = true;
+    h += '<div class="no">Options</div>';
+    if(i.per_day){
+      if(!s.tu) { s.tu = i.tu; s.den = i.den; }
+      h += '<div style="display:flex;gap:8px">' + dateBox("xhd", "tu", "Bulk from (Ngày cấp đơn)") + dateBox("xhd", "den", "Bulk to") + '</div>';
+      if(s.den < s.tu){ h += '<div class="note warn">The end date has to be on or after the start date.</div>'; ok = false; }
+    }
+    h += '<div style="display:flex;gap:8px;margin-top:10px">' + dateBox("xhd", "lap", "Slip date") + '<div style="flex:1"></div></div>' +
+         '<label class="ck" style="margin-top:10px"><input type="checkbox" ' + (s.online ? "checked" : "") + ' onchange="S.xhd.online=this.checked">Auto-fill company names and vehicle fees</label>';
+    (i.warns || []).forEach(w => h += '<div class="note warn">' + esc(w) + '</div>');
+  }
+  const can = ok && !busyT("xhd");
+  h += '<div class="act"><button class="btn pri" ' + (can ? "" : "disabled") + ' onclick="runXhd()">Make slips</button></div>';
+  return h + '</div><div class="stack"><div class="card" id="run-xhd"></div><div id="taxbox"></div></div></div>';
+};
+ONFILE.xhd = (key, removed) => { const s = st("xhd"); s.tu = s.den = ""; return look("xhd", "files", "xhd"); };
+function runXhd(){
+  const s = st("xhd"); TAXV = null;
+  run("xhd", {files:ids("xhd", "files"), tu:s.insp.per_day ? s.tu : "", den:s.insp.per_day ? s.den : "", lap:s.lap, online:!!s.online}, "Invoice requests");
+}
+// Tax ID printouts from the Cuc Thue site: the captcha is read automatically first, typed by hand when that fails
+let TAXV = null, TAXBUSY = false;
+DONE.xhd = async (j) => { TAXV = null; if(j.result && j.result.tax){ TAXV = await api("/api/tax/start", {dir:j.dir}); taxLoop(); } };
+AFTER.xhd = () => drawTax();
+async function taxLoop(){
+  if(TAXBUSY) return;
+  TAXBUSY = true; drawTax();
+  while(TAXV && !TAXV.done && !TAXV.manual){
+    TAXV = await api("/api/tax/step", {action:"auto"}); drawTax();
+  }
+  TAXBUSY = false; drawTax();
+}
+async function taxDo(action){
+  const code = action === "search" ? ($("taxcode") || {}).value || "" : "";
+  if(action === "search" && !code.trim()) return;
+  TAXBUSY = true; drawTax();
+  TAXV = await api("/api/tax/step", {action, code});
+  TAXBUSY = false;
+  if(TAXV && !TAXV.done && !TAXV.manual) taxLoop(); else drawTax();
+}
+function drawTax(){
+  const box = $("taxbox"); if(!box) return;
+  if(!TAXV || !TAXV.todo || !TAXV.todo.length){ box.innerHTML = ""; return; }
+  const v = TAXV, saved = v.todo.filter(t => t.status).length;
+  let h = '<div class="card"><h2>Tax ID printouts (Cục Thuế)</h2><div class="muted">' + saved + ' of ' + v.todo.length + ' done. Each printout is added to the zip above.</div>';
+  if(v.cur){
+    h += '<div style="margin-top:12px"><b>' + esc(v.cur.mst) + '</b> · ' + esc(v.cur.name) + '</div>';
+    if(TAXBUSY && !v.manual) h += '<div class="status" style="margin-top:8px"><span class="spin"></span>Looking up on the tax site...</div>';
+    if(v.msg) h += '<div class="note warn">' + esc(v.msg) + '</div>';
+    if(v.manual){
+      if(v.img) h += '<img src="data:image/png;base64,' + v.img + '" style="display:block;margin-top:10px;border-radius:8px;max-width:260px">';
+      h += '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><input class="inp" id="taxcode" placeholder="Captcha" maxlength="10" style="flex:0 1 160px" ' +
+           'onkeydown="if(event.key===\'Enter\')taxDo(\'search\')" ' + (TAXBUSY ? "disabled" : "") + '>' +
+           '<button class="btn pri" ' + (TAXBUSY ? "disabled" : "") + ' onclick="taxDo(\'search\')">Look up</button>' +
+           '<button class="btn" ' + (TAXBUSY ? "disabled" : "") + ' onclick="taxDo(\'captcha\')">New captcha</button>' +
+           '<button class="btn gho" ' + (TAXBUSY ? "disabled" : "") + ' onclick="taxDo(\'skip\')">Skip</button></div>';
+    }
+  }
+  const rows = v.todo.filter(t => t.status);
+  if(rows.length) h += '<div class="tw" style="margin-top:12px"><table><thead><tr><th>Tax ID</th><th>Company</th><th>Status</th><th>Tax site result</th></tr></thead><tbody>' +
+    rows.map(t => '<tr><td>' + esc(t.mst) + '</td><td title="' + esc(t.name) + '">' + esc(t.name) + '</td><td>' + esc(t.status) + '</td><td title="' + esc(t.result) +
+    '">' + esc(t.result) + '</td></tr>').join("") + '</tbody></table></div>';
+  box.innerHTML = h + '</div>';
+  const inp = $("taxcode"); if(inp && !TAXBUSY) inp.focus();
+}
+
+// ---- KBank certificates
+EMPTY.kbank = "Add the masterfile, check the password and the issue date, then Generate certificates.";
+VIEWS.kbank = () => {
+  const s = st("kbank");
+  if(!s.date) s.date = today();
+  if(s.pw === undefined) s.pw = "Pvi@123";
+  s.mode = s.mode || "separate";
+  const can = ready("kbank", "file") && !busyT("kbank");
+  return '<div class="cols"><div class="card"><div class="no">Output</div>' +
+    seg("kbank", "mode", [["separate", "Separate files (.zip)"], ["merged", "One merged Word file"]]) +
+    '<div class="hint">' + (s.mode === "merged" ? "Every certificate in one .docx, one per page, easier to print." : "A .zip of individual .docx files, one per person.") + '</div>' +
+    '<div class="no">Masterfile</div>' + field("kbank", "file", ".xlsx,.xls", false) +
+    '<div class="no">Excel file password</div><input class="inp" type="password" value="' + esc(s.pw) + '" oninput="S.kbank.pw=this.value">' +
+    '<div class="hint">The masterfile is encrypted. Leave the default unless it changed.</div>' +
+    '<div style="display:flex;gap:8px;margin-top:14px">' + dateBox("kbank", "date", "Issue date printed on each certificate") + '<div style="flex:1"></div></div>' +
+    '<div class="act"><button class="btn pri" ' + (can ? "" : "disabled") + ' onclick="run(\'kbank\',{file:ids(\'kbank\',\'file\')[0],password:S.kbank.pw,date:S.kbank.date,merge:S.kbank.mode===\'merged\'},\'KBank certificates\')">Generate certificates</button></div>' +
+    '</div><div class="card" id="run-kbank"></div></div>';
+};
+
+// ---- Update
+VIEWS.upd = () => {
+  const u = UPDINFO;
+  let msg = "Checking...", btn = false;
+  if(u){
+    if(!u.configured) msg = "Updates are not set up in this copy (app\\update.json has no repo).";
+    else if(u.error) msg = "Cannot check: " + u.error + ".";
+    else if(u.available){ msg = "Version " + u.latest + " is available."; btn = true; }
+    else msg = "This is the latest version.";
+  }
+  const j = JOBS.update, done = j && j.state === "done";
+  return '<div class="stack" style="max-width:760px"><div class="card"><div style="display:flex;align-items:center;gap:14px"><div><div class="no">Version in use</div><div class="big">' +
+    esc(VER) + '</div></div><div style="flex:1"></div><button class="btn sm" onclick="checkUpd(true)">Check for updates</button></div>' +
+    '<p class="muted" style="margin:12px 0 0">' + esc(msg) + '</p><div class="act">' +
+    (btn && !done ? '<button class="btn pri" onclick="run(\'update\',{},\'Update\')" style="flex:0 0 auto">Download and install</button>' : "") +
+    (done ? '<button class="btn pri" style="flex:0 0 auto" onclick="restart()">Restart the tool</button>' : "") + '</div></div>' +
+    (u && u.notes ? '<div class="card"><h2>What is new</h2><div class="notes">' + esc(u.notes) + '</div></div>' : "") +
+    '<div class="card"><h2>Install from a zip file</h2><p class="muted" style="margin:0">When this PC cannot reach GitHub.</p><div style="display:flex;gap:8px;margin-top:10px">' +
+    '<input class="inp" id="zipPath" placeholder="C:\\Users\\...\\Downloads\\partnership-tools-main.zip"><button class="btn" onclick="runZip()">Install</button></div></div>' +
+    '<div class="card" id="run-update"></div></div>';
+};
+async function checkUpd(force){
+  if(force){ UPDINFO = null; if(CUR === "upd") draw(); }
+  UPDINFO = await api("/api/update/check"); drawNav(); if(CUR === "upd") draw();
+}
+function runZip(){ const p = $("zipPath").value.trim(); if(!p) return; api("/api/run", {tool:"update", mode:"local", zip:p}).then(r => {
+  if(r.error){ toast(r.error); return; } JOBS.update = {state:"running", lines:[], total:0, label:"Update"}; poll(); draw(); }); }
+DONE.update = () => { if(CUR === "upd") draw(); };
+EMPTY.update = "";
+async function restart(){ await api("/api/restart", {}); gone("Restarting..."); }
+async function quit(){
+  if(Object.values(JOBS).some(j => j.state === "running") && !confirm("A tool is still running. Quit and stop it?")) return;
+  await api("/api/quit", {}); gone("The tool is closed.");
+}
+
+// ------------------------------------------------------------ start
+async function init(){
+  api("/api/ping", {});
+  const s = await api("/api/state");
+  if(s.error) return;
+  VER = s.version; $("ver").textContent = "v" + VER; UPDINFO = s.update;
+  for(const t of Object.keys(s.jobs || {})){
+    const r = await api("/api/job?tool=" + t + "&since=0");
+    if(r.job){ const v = r.job; JOBS[t] = {...v, lines:v.lines, total:v.total}; }
+  }
+  let start = "d2c"; try { start = localStorage.getItem("ct_tool") || "d2c"; } catch(e){}
+  go(VIEWS[start] ? start : "d2c");
+  poll();
+  api("/api/env").then(e => { ENV = e; draw(); });
+  if(!UPDINFO) setTimeout(() => checkUpd(false), 2500);
+  setInterval(() => api("/api/ping", {}), 30000); api("/api/ping", {});
+}
+init();
+</script>
+</body>
+</html>

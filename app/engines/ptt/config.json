@@ -1,0 +1,45 @@
+{
+  "cbkt": "Cao Thị Hương Trang",
+  "payment_term_days": 20,
+  "payment_due_base": "policy_end",
+  "status_include": [
+    "02"
+  ],
+  "programs": [
+    {
+      "key": "GREEN_EXPRESS",
+      "label": "Green Express - domestic goods in transit",
+      "source": "VCND",
+      "ma_sp": [
+        "030313"
+      ],
+      "vat_rate": 0.1,
+      "template": "templates/PTT_GREEN_EXPRESS.docx",
+      "filename": "PTT XHD_GREEN_EXPRESS_từ 22g01 ngày {tu} đến 22g ngày {den}.docx"
+    },
+    {
+      "key": "FOODCARE_EXPRESS",
+      "label": "Food Care - domestic goods in transit",
+      "source": "VCND",
+      "ma_sp": [
+        "030315"
+      ],
+      "vat_rate": 0.1,
+      "template": "templates/PTT_FOODCARE_EXPRESS.docx",
+      "filename": "PTT XHD_FOODCARE_EXPRESS_từ 22g01 ngày {tu} đến 22g ngày {den}.docx"
+    },
+    {
+      "key": "FOODCARE_TAINAN",
+      "label": "Food Care - personal accident, high limit",
+      "source": "TNCN",
+      "ma_sp": [
+        "010202"
+      ],
+      "customer_contains": "Khách lẻ",
+      "vat_rate": 0,
+      "template": "templates/PTT_FOODCARE_TAINAN.docx",
+      "filename": "PTT XHD_FOODCARE_Tainan_từ 22g01 ngày {tu} đến 22g ngày {den}.docx",
+      "payment_due_base": "batch_end"
+    }
+  ]
+}

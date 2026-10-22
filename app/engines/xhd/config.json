@@ -1,0 +1,45 @@
+{
+  "cbkt": "Trần Hồng Châu",
+  "cbkt_email": "chauth@pvi.com.vn",
+  "retail_customer": "Khách lẻ - Bán cho người tiêu dùng",
+  "personal_suffix": " - Bán cho người tiêu dùng",
+  "status_include": ["02"],
+  "units": ["04"],
+  "partners": {
+    "PVI PLUS": "Online",
+    "ONLINE": "Online",
+    "RABBITCARE": "Rabbit Care",
+    "RABBIT CARE": "Rabbit Care"
+  },
+  "vehicle_products": ["AUTO", "MOTO"],
+  "default_labels": ["1. Phí BH Phạm vi bảo hiểm chính", "2. Phí BH Phạm vi bảo hiểm bổ sung", "Tổng số tiền (đã gồm VAT)"],
+  "products": {
+    "DLCN": {
+      "name": "Bảo hiểm Du lịch quốc tế",
+      "request_vat_row": 2,
+      "bulk": true,
+      "codes": {"010605": {"row": 1, "vat": 0}, "010612": {"row": 2, "vat": 0.1}},
+      "channel_col": "Mã loại TS",
+      "channels": {"030615": "Online", "030612": "Rabbit Care"},
+      "content": "Phí Bảo hiểm Du lịch quốc tế cấp qua Website {channel} từ ngày {period}"
+    },
+    "TSTH": {
+      "name": "Bảo hiểm Mọi rủi ro CHCC",
+      "request_vat_row": 1,
+      "bulk": true,
+      "codes": {"020113": {"row": 1, "vat": 0.1}},
+      "accident_rate": 0.11,
+      "accident_row": {"row": 2, "vat": 0},
+      "channel_fixed": "Online",
+      "labels": ["1. Phí BH tài sản cho căn hộ chung cư", "2. Phí BH tai nạn cá nhân cho CHCC", "Thành tiền (đã gồm VAT)"],
+      "mst_label": "Mã số thuế/CCCD",
+      "dbh1": "PVI",
+      "content": "Phí Bảo hiểm Mọi rủi ro căn hộ chung cư cấp qua website PVI Online từ ngày {period}"
+    },
+    "AUTO": {"name": "Bảo hiểm Bắt buộc TNDS xe ô tô"},
+    "MOTO": {"name": "Bảo hiểm Bắt buộc TNDS xe mô tô"}
+  },
+  "tax_api": "https://api.vietqr.io/v2/business/{mst}",
+  "name_fix_min": 0.6,
+  "same_entity_min": 0.85
+}
