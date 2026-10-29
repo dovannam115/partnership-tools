@@ -3,7 +3,7 @@
 # (so Windows search finds it and it can be pinned to the taskbar) and to the Desktop.
 # Running it again over an existing install replaces the code only: output\, app\dump
 # and app\update.json stay as they are.
-import os, sys, shutil, socket, subprocess
+import os, sys, stat, time, shutil, socket, subprocess
 
 SRC  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEST = os.path.join(os.environ.get("LOCALAPPDATA") or os.path.expanduser(r"~\AppData\Local"),
@@ -37,9 +37,23 @@ def ignore(folder, names):
     return out
 
 
+def put(src, dst):
+    # An old copy can be read-only (zip/OneDrive attribute) or held for a moment by antivirus:
+    # clear the flag, retry a few times, and never carry the flag over to the new copy.
+    for i in range(5):
+        try:
+            if os.path.exists(dst): os.chmod(dst, stat.S_IWRITE)
+            shutil.copy2(src, dst)
+            os.chmod(dst, stat.S_IWRITE)
+            return dst
+        except PermissionError:
+            if i == 4: raise
+            time.sleep(1)
+
+
 def copy():
     os.makedirs(DEST, exist_ok=True)
-    shutil.copytree(SRC, DEST, ignore=ignore, dirs_exist_ok=True)
+    shutil.copytree(SRC, DEST, ignore=ignore, copy_function=put, dirs_exist_ok=True)
     for d in ("output", os.path.join("app", "dump")):
         os.makedirs(os.path.join(DEST, d), exist_ok=True)
 
@@ -65,7 +79,16 @@ def main():
         return 1
     if not same:
         print("Copying to " + DEST + " (about 450 MB, takes a minute) ...")
-        copy()
+        try:
+            copy()
+        except shutil.Error as ex:
+            bad = [e[1] for e in ex.args[0]]
+            print("Could not overwrite these files (open in another program, or blocked):")
+            for b in bad[:10]: print("  " + b)
+            if any(os.path.basename(b).lower() != "install.bat" for b in bad):
+                print("Close Partnership Tools and any window showing that folder, then run Install.bat again.")
+                return 1
+            print("Only the installer copy was skipped, the app itself is in place.")
     print("Adding shortcuts (Start menu + Desktop) ...")
     shortcuts()
     subprocess.Popen([os.path.join(DEST, "app", "pyembed", "pythonw.exe"),

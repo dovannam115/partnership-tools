@@ -447,7 +447,8 @@ def install_tree(src, j):
                 b = os.path.join(backup, rel.replace("/", os.sep))
                 os.makedirs(os.path.dirname(b), exist_ok=True); shutil.copy2(dst, b)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
-            shutil.copy2(full, dst); n += 1
+            if os.path.exists(dst): os.chmod(dst, 0o666)       # an old read-only copy cannot be overwritten
+            shutil.copy2(full, dst); os.chmod(dst, 0o666); n += 1
             j.put("  " + rel)
     j.put("")
     j.put("%d file(s) updated." % n + (" Old copies kept in app\\%s" % os.path.basename(backup) if n else ""))

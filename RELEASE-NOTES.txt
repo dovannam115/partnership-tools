@@ -1,3 +1,7 @@
+v1.0.2 (29/10/2026)
+- Install.bat no longer stops with "Permission denied" when an old copy in the install folder is read-only or briefly locked.
+- Update clears the read-only flag on old files before replacing them.
+
 v1.0.1 (22/10/2026)
 - English / Tiếng Việt switch at the bottom of the left bar. The choice is remembered on this PC.
 - Handshake icon, the same as the Partnership web page.
