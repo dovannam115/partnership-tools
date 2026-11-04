@@ -1,3 +1,6 @@
+v1.0.4 (04/11/2026)
+- PTT slips: on the Green Express slip the total is now ROUND(premium + VAT, -1), for example 238 904 001 becomes 238 904 000. Premium and VAT stay as they are.
+
 v1.0.3 (04/11/2026)
 - PTT slips: the Food Care personal accident slip now takes only Khách lẻ policies with MTN 150,000,000.
 - PTT slips: the Email line on all three slips now reads tamdm@pvi.com.vn; khanhbt@pvi.com.vn; cuongpv@pvi.com.vn; nguyenlqk@pvi.com.vn.

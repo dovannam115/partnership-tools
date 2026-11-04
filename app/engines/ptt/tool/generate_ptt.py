@@ -343,6 +343,14 @@ def half_up(v):
     return int(Decimal(str(v)).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
 
+def round_to(v, digits):
+    """ROUND(v, digits) cua Excel (nua len), digits am = lam tron hang chuc/tram..."""
+    if digits is None:
+        return half_up(v)
+    q = Decimal(1).scaleb(-int(digits))
+    return int(Decimal(str(v)).quantize(q, rounding=ROUND_HALF_UP))
+
+
 def money(v):
     return f"{half_up(v):,}".replace(",", " ")
 
@@ -687,6 +695,9 @@ def main(argv):
         fee = sum(r["fee"] for r in rows)
         rate = prog.get("vat_rate", 0)
         vat = half_up(fee * rate)
+        # Tong tien: chuong trinh co "total_round" thi lam tron nhu ROUND(phi + VAT, n)
+        # cua Excel (Green Express: -1, theo Khanh 04/11/2026), phi va VAT giu nguyen.
+        tong = round_to(fee + vat, prog.get("total_round"))
         exported = [r["vat"] for r in rows if r["vat"] is not None]
         if rate and exported and half_up(sum(exported)) != vat:
             warns.append("%s: computed VAT %s differs from the export's VAT column %s."
@@ -715,7 +726,7 @@ def main(argv):
             "HANTT": dmy(han),
             "PHI": money(fee),
             "VAT": money(vat),
-            "TONG": money(fee + vat),
+            "TONG": money(tong),
             "KYTU": dmy(tu),
             "KYDEN": dmy(den),
             "D": lap.strftime("%d"),
@@ -725,10 +736,10 @@ def main(argv):
         for k, v in vals.items():
             replace_everywhere(doc, re.escape("{{" + k + "}}"), v.replace("\\", "\\\\"))
         doc.save(os.path.join(run_dir, name))
-        made.append((prog, rows, fee, vat, vals, name))
+        made.append((prog, rows, fee, vat, tong, vals, name))
         log.append("%-16s | %d policy | %s | premium %s + VAT %s = %s | cover %s | due %s | %s"
                    % (prog["key"], len(rows), ", ".join(sorted({r["policy"] for r in rows})),
-                      money(fee), money(vat), money(fee + vat), vals["HL"],
+                      money(fee), money(vat), money(tong), vals["HL"],
                       vals["HANTT"], name))
 
     bar.step("writing log")
@@ -747,9 +758,9 @@ def main(argv):
     bar.finish("%d slip(s) done" % len(made))
 
     print("")
-    for prog, rows, fee, vat, vals, name in made:
+    for prog, rows, fee, vat, tong, vals, name in made:
         print("[%s]  %d policy  |  premium %s + VAT %s = %s"
-              % (prog["key"], len(rows), money(fee), money(vat), money(fee + vat)))
+              % (prog["key"], len(rows), money(fee), money(vat), money(tong)))
         print("   cover %s   |   due %s" % (vals["HL"], vals["HANTT"]))
         print("   -> %s" % name)
 

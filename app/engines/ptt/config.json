@@ -14,6 +14,7 @@
         "030313"
       ],
       "vat_rate": 0.1,
+      "total_round": -1,
       "template": "templates/PTT_GREEN_EXPRESS.docx",
       "filename": "PTT XHD_GREEN_EXPRESS_từ 22g01 ngày {tu} đến 22g ngày {den}.docx"
     },
