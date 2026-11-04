@@ -79,6 +79,7 @@ FIELDS = {
         "fee": ["số tiền phí"],
         "status": ["tình trạng đơn"],
         "partner": ["tên đơn vị tgbh"],
+        "mtn": ["mtn-gtbh (ntệ)"],
     },
 }
 
@@ -516,6 +517,7 @@ def read_rows(sources, warns, bar):
                     "vat": float(cell("vat")) if cell("vat") not in (None, "") else None,
                     "status": str(cell("status") or "").strip(),
                     "partner": str(cell("partner") or "").strip(),
+                    "mtn": to_amount(cell("mtn")),
                 })
         wb.close()
         if not hit:
@@ -524,12 +526,27 @@ def read_rows(sources, warns, bar):
     return out, dup
 
 
+def to_amount(v):
+    """So tien trong o Excel (so hoac chu '150,000,000'); trong/khong doc duoc -> None."""
+    if v in (None, ""):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    try:
+        return float(str(v).replace(",", "").replace(" ", ""))
+    except ValueError:
+        return None
+
+
 def select_rows(data, prog):
-    """Cac don len mot phieu: dung nguon, dung ma sp, dung khach hang neu co."""
+    """Cac don len mot phieu: dung nguon, dung ma sp, dung khach hang va MTN neu co."""
     rows = [r for r in data[prog["source"]] if r["ma_sp"] in prog["ma_sp"]]
     need = prog.get("customer_contains")
     if need:
         rows = [r for r in rows if need.lower() in r["partner"].lower()]
+    mtn = prog.get("mtn_equals")
+    if mtn is not None:
+        rows = [r for r in rows if r.get("mtn") == float(mtn)]
     return rows
 
 

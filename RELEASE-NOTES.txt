@@ -1,3 +1,7 @@
+v1.0.3 (04/11/2026)
+- PTT slips: the Food Care personal accident slip now takes only Khách lẻ policies with MTN 150,000,000.
+- PTT slips: the Email line on all three slips now reads tamdm@pvi.com.vn; khanhbt@pvi.com.vn; cuongpv@pvi.com.vn; nguyenlqk@pvi.com.vn.
+
 v1.0.2 (29/10/2026)
 - Install.bat no longer stops with "Permission denied" when an old copy in the install folder is read-only or briefly locked.
 - Update clears the read-only flag on old files before replacing them.

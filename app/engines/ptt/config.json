@@ -36,6 +36,7 @@
         "010202"
       ],
       "customer_contains": "Khách lẻ",
+      "mtn_equals": 150000000,
       "vat_rate": 0,
       "template": "templates/PTT_FOODCARE_TAINAN.docx",
       "filename": "PTT XHD_FOODCARE_Tainan_từ 22g01 ngày {tu} đến 22g ngày {den}.docx",
