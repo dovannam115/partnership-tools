@@ -1,3 +1,6 @@
+v1.0.5 (05/11/2026)
+- PTT slips: Cán bộ khai thác on all three slips is now Bùi Tùng Khánh.
+
 v1.0.4 (04/11/2026)
 - PTT slips: on the Green Express slip the total is now ROUND(premium + VAT, -1), for example 238 904 001 becomes 238 904 000. Premium and VAT stay as they are.
 
