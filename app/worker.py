@@ -224,9 +224,11 @@ def run_rabbit(a):
     R = runners()
     RB = R.RB
     try:
-        prev = RB.preview(files_of(a["files"]))
+        prev = RB.preview(files_of(list(a["files"]) + list(a.get("sdbs") or [])))
     except RB.RabbitError as e:
         raise UserError(str(e))
+    if a.get("sdbs") and not prev["endorsements"] and not prev["skipped"]:
+        prev["warns"].append("The SĐBS box has a file but no SĐBS row was found in it.")
     tu, den = day(a.get("tu")) or prev["auto_tu"], day(a.get("den")) or prev["auto_den"]
     if not (tu and den): raise UserError("Type the payment period.")
     if den < tu: raise UserError("The end date has to be on or after the start date.")

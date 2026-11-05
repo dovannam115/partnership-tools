@@ -1,3 +1,6 @@
+v1.0.9 (05/11/2026)
+- Rabbit Care: two upload boxes, one for the policy export (needed) and one for the SĐBS export (optional). Without a SĐBS file the Điều chỉnh line is 0. A warning shows when a file sits in the wrong box.
+
 v1.0.8 (05/11/2026)
 - Rabbit Care: the Danh sách sheet is split into Cấp mới and Điều chỉnh (SĐBS), each with its own STT and subtotal, then the grand total. BBĐS takes the two subtotals.
 
