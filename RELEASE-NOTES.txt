@@ -1,3 +1,6 @@
+v1.0.8 (05/11/2026)
+- Rabbit Care: the Danh sách sheet is split into Cấp mới and Điều chỉnh (SĐBS), each with its own STT and subtotal, then the grand total. BBĐS takes the two subtotals.
+
 v1.0.7 (05/11/2026)
 - Rabbit Care: uses the updated Format file Rabbit Care from Châu (wider Phân loại column).
 

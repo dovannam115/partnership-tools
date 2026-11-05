@@ -182,10 +182,14 @@ def build(prev, tu, den):
     ls.delete_rows(2, ls.max_row)
     for r in range(2, 40): ls.row_dimensions[r].height = None
 
-    r, stt, seen = 2, 0, {}
-    spans = {}
+    # 2 phan: Cap moi roi Dieu chinh (SDBS), moi phan 1 dong tieu de, STT rieng, 1 dong cong
+    TITLE = {"pol": "Cấp mới / Issued", "end": "Điều chỉnh (SĐBS) / Adjustment"}
+    SUBT = {"pol": "Cộng cấp mới", "end": "Cộng điều chỉnh"}
+    r, subs = 2, {}
     for part, items in (("pol", prev["policies"]), ("end", prev["endorsements"])):
-        first = r
+        if not items: continue
+        _put(ls, r, s_tot, {2: TITLE[part]}); r += 1
+        first, stt, seen = r, 0, {}
         for it in items:
             if it["so"] not in seen:
                 stt += 1; seen[it["so"]] = stt
@@ -194,14 +198,19 @@ def build(prev, tu, den):
                                  9: int(round(it["stbh"])), 10: int(round(it["phi"])), 11: cfg["vat"][it["sp"]],
                                  12: "=ROUND(J%d*K%d,0)" % (r, r), 13: "=J%d+L%d" % (r, r)})
             r += 1
-        spans[part] = (first, r - 1) if r > first else None
+        f = lambda col: "%s%d:%s%d" % (col, first, col, r - 1)
+        _put(ls, r, s_tot, {2: SUBT[part], 3: "=SUMPRODUCT(1/COUNTIF(%s,%s))" % (f("B"), f("B")),
+                            10: "=SUM(%s)" % f("J"), 12: "=SUM(%s)" % f("L"), 13: "=SUM(%s)" % f("M")})
+        subs[part] = r
+        r += 1
+        _put(ls, r, s_gap, {}); r += 1
     last = r - 1
     tot = r
-    rng = lambda col: "%s2:%s%d" % (col, col, last)
-    _put(ls, tot, s_tot, {2: "Tổng cộng", 3: "=SUMPRODUCT(1/COUNTIF(%s,%s))" % (rng("B"), rng("B")),
-                          10: "=SUM(%s)" % rng("J"), 12: "=SUM(%s)" % rng("L"), 13: "=SUM(%s)" % rng("M")})
+    plus = lambda col: "=" + "+".join("%s%d" % (col, x) for x in subs.values())
+    _put(ls, tot, s_tot, {2: "Tổng cộng", 3: plus("C"), 10: plus("J"), 12: plus("L"), 13: plus("M")})
     _put(ls, tot + 1, s_gap, {})
     b0 = tot + 2
+    rng = lambda col: "%s2:%s%d" % (col, col, last)
 
     def part_sum(codes, col):
         terms = "+".join('(%s="%s")' % (rng("H"), c) for c in codes)
@@ -223,13 +232,12 @@ def build(prev, tu, den):
     f1, f2 = tu.strftime("%d/%m/%Y"), den.strftime("%d/%m/%Y")
     bb["C6"] = "Kỳ thanh toán: Từ ngày %s đến ngày %s\nPayment period: From %s to %s" % (f1, f2, f1, f2)
     for row, part in ((9, "pol"), (10, "end")):
-        sp = spans[part]
+        sub = subs.get(part)
         bb.cell(row, 6)._style = copy.copy(bb.cell(row, 7)._style)
-        if sp:
-            b = "%sB%d:B%d" % (L, sp[0], sp[1])
-            bb.cell(row, 5).value = "=SUMPRODUCT(1/COUNTIF(%s,%s))" % (b, b)
-            bb.cell(row, 6).value = "=SUM(%sM%d:M%d)" % (L, sp[0], sp[1])
-            bb.cell(row, 7).value = "=SUM(%sJ%d:J%d)" % (L, sp[0], sp[1])
+        if sub:
+            bb.cell(row, 5).value = "=%sC%d" % (L, sub)
+            bb.cell(row, 6).value = "=%sM%d" % (L, sub)
+            bb.cell(row, 7).value = "=%sJ%d" % (L, sub)
         else:
             bb.cell(row, 5).value, bb.cell(row, 6).value, bb.cell(row, 7).value = 0, 0, 0
         bb.cell(row, 5).number_format = "00"
@@ -246,7 +254,7 @@ def build(prev, tu, den):
     vat = total(pol, True) + total(end, True)
     summary = {"n_pol": len({x["so"] for x in pol}), "n_end": len({x["so"] for x in end}),
                "premium": fee, "vat": vat, "total": fee + vat, "service_fee": fee * cfg["fee_rate"],
-               "period": ky, "rows": last - 1,
+               "period": ky,
                "endorsements": [[x["so"], x["sp"], x["ten_sdbs"], int(round(x["phi"]))] for x in end]}
     return buf.getvalue(), summary
 
