@@ -11,7 +11,7 @@ if APP not in sys.path: sys.path.insert(0, APP)
 
 # folder name of each tool under output\
 TOOLS = {"d2c": "D2C_VNPAY", "ptt": "PTT_Slips", "inv": "Invoice_PDFs", "xhd": "Invoice_Requests",
-         "kbank": "KBank_Certificates", "update": "_update"}
+         "kbank": "KBank_Certificates", "rabbit": "Rabbit_Care", "update": "_update"}
 
 # Where "Update" looks for new versions. app\update.json wins when it names a repo.
 REPO = {"repo": "dovannam115/partnership-tools", "branch": "main", "token": ""}

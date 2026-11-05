@@ -1,3 +1,7 @@
+v1.0.6 (05/11/2026)
+- New tool Rabbit Care (Reconcile): drop the PIAS policy and SĐBS exports of the month and get the monthly reconciliation (BBĐS + Danh sách) in the Rabbit Care format.
+- Repeated PIAS rows are counted once, SĐBS without a premium change are left out, VAT 0% on 010605 and 10% on 010612, service fee 50% of the premium before VAT.
+
 v1.0.5 (05/11/2026)
 - PTT slips: Cán bộ khai thác on all three slips is now Bùi Tùng Khánh.
 

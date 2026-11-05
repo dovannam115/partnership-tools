@@ -219,7 +219,43 @@ def run_kbank(a):
             "tables": [table("Check before sending", list(rows[0].keys()) if rows else ["STT"], rows)]}
 
 
-RUN = {"d2c": run_d2c, "ptt": run_ptt, "inv": run_inv, "xhd": run_xhd, "kbank": run_kbank}
+# ------------------------------------------------------------------ Rabbit Care reconciliation
+def run_rabbit(a):
+    R = runners()
+    RB = R.RB
+    try:
+        prev = RB.preview(files_of(a["files"]))
+    except RB.RabbitError as e:
+        raise UserError(str(e))
+    tu, den = day(a.get("tu")) or prev["auto_tu"], day(a.get("den")) or prev["auto_den"]
+    if not (tu and den): raise UserError("Type the payment period.")
+    if den < tu: raise UserError("The end date has to be on or after the start date.")
+    say("Building the reconciliation %s → %s ..." % (tu.strftime("%d/%m/%Y"), den.strftime("%d/%m/%Y")))
+    data, s = RB.build(prev, tu, den)
+    out = write(os.path.join(DIR, RB.out_name(tu)), data)
+    warns = list(prev["warns"])
+    try:
+        import pythoncom
+        pythoncom.CoInitialize()
+        try: rc = R.recalc(out)
+        finally: pythoncom.CoUninitialize()
+        say("%d formulas, %d errors" % (rc["total_formulas"], rc.get("total_errors", 0)))
+        if rc.get("total_errors"): warns.append("%d formula errors in the file. Check before sending." % rc["total_errors"])
+    except Exception as e:
+        say("Skipped recalc (%s: %s)" % (type(e).__name__, e))
+        warns.append("Formulas were not recalculated (Excel not found). Open the file in Excel once to refresh them.")
+    money = lambda v: format(int(round(v)), ",").replace(",", ".")
+    rows = [["Cấp mới", s["n_pol"]], ["Điều chỉnh", s["n_end"]]]
+    notes = ["Premium %s + VAT %s = %s" % (money(s["premium"]), money(s["vat"]), money(s["total"]))]
+    if prev["skipped"]:
+        notes.append("%d endorsement(s) with no premium change left out: %s" % (len(prev["skipped"]), ", ".join(prev["skipped"])))
+    tables = [table("Endorsements included", ["Endorsement", "Product", "Type", "Premium"], s["endorsements"])] if s["endorsements"] else []
+    return {"stats": [stat("Policies", s["n_pol"]), stat("Endorsements", s["n_end"]),
+                      stat("Service fee", money(s["service_fee"]), "good")],
+            "files": [out], "warns": warns, "notes": notes, "tables": tables}
+
+
+RUN = {"d2c": run_d2c, "ptt": run_ptt, "inv": run_inv, "xhd": run_xhd, "kbank": run_kbank, "rabbit": run_rabbit}
 
 
 # ------------------------------------------------------------------ quick looks for the form
@@ -256,6 +292,14 @@ def inspect(kind, a):
             return {"sheet": s["sheet"], "col": s["col"], "header": s["header"], "links": len(s["items"]),
                     "hidden": sum(i["hidden"] for i in s["items"]),
                     "n": len(all_), "dup": dup, "n_vis": len(vis), "dup_vis": dupv}
+        if kind == "rabbit":
+            try: p = R.RB.preview(files_of(a["files"]))
+            except R.RB.RabbitError as e: return {"error": str(e)}
+            return {"files": [{"name": n, "type": "%s (%d)" % (k, c)} for n, k, c in p["files"]],
+                    "tu": p["auto_tu"].isoformat() if p["auto_tu"] else "",
+                    "den": p["auto_den"].isoformat() if p["auto_den"] else "",
+                    "n_pol": len({r["so"] for r in p["policies"]}), "n_end": len({r["so"] for r in p["endorsements"]}),
+                    "skipped": len(p["skipped"]), "warns": p["warns"]}
         return {"error": "unknown"}
     except R.RunError as e:
         return {"error": str(e)}

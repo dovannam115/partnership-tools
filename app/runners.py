@@ -32,11 +32,12 @@ D2C_TOOL = os.path.join(ENGINES, "d2c", "tool")
 PTT_ROOT = os.path.join(ENGINES, "ptt")
 XHD_TOOL = os.path.join(ENGINES, "xhd", "tool")
 KB_TOOL = os.path.join(ENGINES, "kbank")
+RB_TOOL = os.path.join(ENGINES, "rabbit")
 TEMPLATE = os.path.join(D2C_TOOL, "template.xlsx")
 RUNS = os.path.join(HERE, "runs")              # worker.py points this at the run folder
 KEEP_DAYS = 14
 
-for _p in (D2C_TOOL, os.path.join(PTT_ROOT, "tool"), XHD_TOOL):
+for _p in (D2C_TOOL, os.path.join(PTT_ROOT, "tool"), XHD_TOOL, RB_TOOL):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 os.environ["PTT_NO_OPEN"] = "1"           # generate_ptt khong tu mo Explorer tren may chu
@@ -47,6 +48,7 @@ from recalc_win import recalc              # noqa: E402
 import generate_ptt as G                   # noqa: E402
 import xhd as X                            # noqa: E402
 import taxsite as T                        # noqa: E402
+import rabbit_recon as RB                  # noqa: E402
 
 
 def _load_kbank():

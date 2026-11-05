@@ -206,7 +206,7 @@ const $ = (id) => document.getElementById(id);
 $("logo").src = $("ico").href;
 
 const NAV = [
-  ["Reconcile", [["d2c","D2C VNPAY"]]],
+  ["Reconcile", [["d2c","D2C VNPAY"],["rabbit","Rabbit Care"]]],
   ["Slips & invoices", [["ptt","PTT slips (GSM)"],["xhd","Invoice requests (XHĐ)"],["inv","Invoice PDFs"]]],
   ["Certificates", [["kbank","KBank certificates"]]],
   ["", [["upd","Update"]]],
@@ -393,7 +393,16 @@ const VI = {
   "A .zip of individual .docx files, one per person.": "File .zip gồm các file .docx lẻ, mỗi người một file.",
   "Excel file password": "Mật khẩu file Excel", "The masterfile is encrypted. Leave the default unless it changed.": "Masterfile có mật khẩu. Giữ mặc định trừ khi đã đổi.",
   "Issue date printed on each certificate": "Ngày cấp in trên từng giấy", "Generate certificates": "Tạo giấy chứng nhận",
-  "Check before sending": "Kiểm tra trước khi gửi"
+  "Check before sending": "Kiểm tra trước khi gửi",
+  // Rabbit Care
+  "Add the PIAS exports of the month (policies and SĐBS). The period is filled in from the files, check it, then Make reconciliation.": "Thêm file xuất PIAS của tháng (đơn và SĐBS). Kỳ được điền sẵn theo file, kiểm tra rồi bấm Tạo biên bản.",
+  "PIAS exports": "File xuất PIAS", "Drop the policy and SĐBS exports here": "Thả file đơn và file SĐBS vào đây",
+  "Straight from PIAS, no editing. Repeated rows are counted once, SĐBS without a premium change are left out.": "Xuất thẳng từ PIAS, không cần sửa. Dòng lặp chỉ tính một lần, SĐBS không đổi phí được bỏ qua.",
+  "Payment period": "Kỳ thanh toán", "From": "Từ ngày", "To": "Đến ngày", "Make reconciliation": "Tạo biên bản",
+  "Endorsements": "SĐBS", "Service fee": "Phí dịch vụ", "Endorsements included": "SĐBS được tính",
+  "Endorsement": "SĐBS", "Rabbit Care reconciliation": "Đối soát Rabbit Care",
+  "Policies (Cấp mới)": "Đơn cấp mới", "Endorsements with a premium change": "SĐBS có đổi phí",
+  "Type the payment period.": "Nhập kỳ thanh toán."
 };
 const VI_RE = [
   [/^(\w+): no policy in this period, no slip produced\.$/, "$1: không có đơn trong kỳ, không ra phiếu."],
@@ -437,7 +446,15 @@ const VI_RE = [
   [/^(\d+) policies covered by 22h01 (.+) → 22h00 (.+)\.$/, "$1 đơn trong kỳ 22h01 $2 → 22h00 $3."],
   [/^Skip hidden rows \((\d+)\)$/, "Bỏ dòng ẩn ($1)"], [/^Sheet (.+), column (.+), (\d+) links\.$/, "Sheet $1, cột $2, $3 link."],
   [/^Sheet (.+), column (.+)$/, "Sheet $1, cột $2"], [/^(\d+) link\(s\) failed, see the table\.$/, "$1 link lỗi, xem bảng."],
-  [/^(\d+) of (\d+) done\. Each printout is added to the zip above\.$/, "Đã xong $1/$2. Mỗi bản in được thêm vào file zip ở trên."]
+  [/^(\d+) of (\d+) done\. Each printout is added to the zip above\.$/, "Đã xong $1/$2. Mỗi bản in được thêm vào file zip ở trên."],
+  [/^Policies \((\d+)\)$/, "Đơn ($1)"], [/^Endorsements \(SĐBS\) \((\d+)\)$/, "SĐBS ($1)"], [/^Policies \+ endorsements \((\d+)\)$/, "Đơn + SĐBS ($1)"],
+  [/^(\d+) SĐBS without a premium change left out\.$/, "Bỏ $1 SĐBS không đổi phí."],
+  [/^(\d+) endorsement\(s\) with no premium change left out: (.+)$/, "Bỏ $1 SĐBS không đổi phí: $2"],
+  [/^Premium (.+) \+ VAT (.+) = (.+)$/, "Phí $1 + VAT $2 = $3"],
+  [/^Building the reconciliation (.+) → (.+) \.\.\.$/, "Đang tạo biên bản $1 → $2 ..."],
+  [/^Ngày cấp đơn runs from (.+) to (.+), more than one month\. Check the period\.$/, "Ngày cấp đơn từ $1 đến $2, quá một tháng. Kiểm tra kỳ."],
+  [/^Product code (.+) has no VAT rate in the tool\. Ask Nam to add it\.$/, "Mã sp $1 chưa có thuế suất VAT trong tool. Báo anh Nam thêm."],
+  [/^(.+) (\d+): duplicate rows have different premiums \((.+), (.+)\), the first is used\.$/, "$1 $2: các dòng lặp có phí khác nhau ($3, $4), lấy dòng đầu."]
 ];
 const ORIG = new WeakMap();
 function tr(s){
@@ -868,6 +885,32 @@ function drawTax(){
   box.innerHTML = h + '</div>';
   const inp = $("taxcode"); if(inp && !TAXBUSY) inp.focus();
 }
+
+// ---- Rabbit Care reconciliation
+EMPTY.rabbit = "Add the PIAS exports of the month (policies and SĐBS). The period is filled in from the files, check it, then Make reconciliation.";
+VIEWS.rabbit = () => {
+  const s = st("rabbit"), i = s.insp;
+  let h = '<div class="cols"><div class="card"><div class="no">PIAS exports</div>' +
+    field("rabbit", "files", ".xlsx,.xlsm", true, "Drop the policy and SĐBS exports here") +
+    '<div class="hint">Straight from PIAS, no editing. Repeated rows are counted once, SĐBS without a premium change are left out.</div>' + reading(s);
+  let ok = false;
+  if(i && i.error) h += '<div class="note bad">' + esc(i.error) + '</div>';
+  if(i && i.files){
+    h += typeTable(i.files);
+    if(!s.tu) { s.tu = i.tu; s.den = i.den; }
+    h += '<div class="stats"><div class="stat"><div>Policies (Cấp mới)</div><b>' + i.n_pol + '</b></div><div class="stat"><div>Endorsements with a premium change</div><b>' + i.n_end + '</b></div></div>';
+    if(i.skipped) h += '<div class="hint">' + i.skipped + ' SĐBS without a premium change left out.</div>';
+    h += '<div class="no">Payment period</div><div style="display:flex;gap:8px">' + dateBox("rabbit", "tu", "From") + dateBox("rabbit", "den", "To") + '</div>';
+    ok = !!(s.tu && s.den);
+    if(ok && s.den < s.tu){ h += '<div class="note warn">The end date has to be on or after the start date.</div>'; ok = false; }
+    (i.warns || []).forEach(w => h += '<div class="note warn">' + esc(w) + '</div>');
+  }
+  if(ENV && !ENV.excel) h += '<div class="note warn">Excel is not on this PC, so the formulas are not recalculated. Open the result in Excel once before sending.</div>';
+  const can = ok && !busyT("rabbit");
+  h += '<div class="act"><button class="btn pri" ' + (can ? "" : "disabled") + ' onclick="run(\'rabbit\',{files:ids(\'rabbit\',\'files\'),tu:S.rabbit.tu,den:S.rabbit.den},\'Rabbit Care reconciliation\')">Make reconciliation</button></div>';
+  return h + '</div><div class="card" id="run-rabbit"></div></div>';
+};
+ONFILE.rabbit = (key, removed) => { const s = st("rabbit"); s.tu = s.den = ""; return look("rabbit", "files", "rabbit"); };
 
 // ---- KBank certificates
 EMPTY.kbank = "Add the masterfile, check the password and the issue date, then Generate certificates.";
