@@ -351,10 +351,11 @@ def parse_gcn(pdf_bytes):
     text = nfc(" ".join((p.extract_text() or "") for p in rd.pages[:2]))
     t = re.sub(r"\s+", "", text)
     num = r"([\d.,]+)"
-    m1 = re.search(r"Phíbảohiểm" + num + r"đồng", t)
-    mv = re.search(r"VAT" + num + r"đồng", t)
-    m2 = re.search(r"Phíbảohiểm\(gồmVAT\)" + num + r"đồng", t)
-    mt = re.search(r"TỔNGPHÍBẢOHIỂM" + num + r"ĐỒNG", t, re.I)
+    # mau GCN xe may tu 11/2026: "Phi bao hiem: 60,000 dong", "TONG PHI BH: 86,000 DONG" (co dau hai cham, BH)
+    m1 = re.search(r"Phíbảohiểm:?" + num + r"đồng", t)
+    mv = re.search(r"VAT:?" + num + r"đồng", t)
+    m2 = re.search(r"Phíbảohiểm\(gồmVAT\):?" + num + r"đồng", t)
+    mt = re.search(r"TỔNGPHÍ(?:BẢOHIỂM|BH):?" + num + r"ĐỒNG", t, re.I)
     if not (m1 and mt):
         raise ToolError("fee lines not found in the GCNBH")
     a1, v1 = money(m1.group(1)), money(mv.group(1)) if mv else 0
