@@ -1,3 +1,6 @@
+v1.1.1 (12/11/2026)
+- Invoice requests (XHĐ): fees are read from the new motorbike GCNBH layout (Phí bảo hiểm: ..., TỔNG PHÍ BH: ...). Before, these slips asked to fill the fee lines by hand.
+
 v1.1.0 (12/11/2026)
 - Invoice requests (XHĐ): bulk slips for khách lẻ work again for policies of unit 13 (26/45/13/...). Before, every PIAS row of unit 13 was left out, so only the request slips came out.
 - Invoice requests (XHĐ): the zip now has two folders. Print keeps the layout as before. Accounting has one folder per customer request (its own PTT, the GCNBH and, after the tax lookup, the Tax ID printout) and one folder per bulk slip (PTT + list).
