@@ -1,13 +1,13 @@
-# Build dist\Partnership_Tools.zip to hand over. Run: app\pyembed\python.exe app\make_package.py
+# Build dist\Upselling_Tools.zip to hand over. Run: app\pyembed\python.exe app\make_package.py
 # Ships code + pyembed + app\engines (with their config and templates), with EMPTY output\ and app\dump\.
 # Left out: app\dump\* (token, logs, uploads), output\ (real claim files),
 # app\_backup_*, __pycache__, this script, and the GitHub token in update.json (blanked).
 import os, json, zipfile
 from common import ROOT, APP
 
-TOP   = "Partnership-Tools"
-OUT   = os.path.join(ROOT, "dist", "Partnership_Tools.zip")
-FILES = ["Install.bat", "Partnership Tools.bat", "VERSION", "RELEASE-NOTES.txt"]
+TOP   = "Upselling-Tools"
+OUT   = os.path.join(ROOT, "dist", "Upselling_Tools.zip")
+FILES = ["Install.bat", "Upselling Tools.bat", "VERSION", "RELEASE-NOTES.txt"]
 EMPTY = ["output/", "app/dump/"]
 
 

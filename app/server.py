@@ -1,6 +1,6 @@
-# Local window for Partnership Tools. Binds 127.0.0.1 only, serves app\ui and runs each tool
+# Local window for Upselling Tools (named Partnership Tools before 2.1.0). Binds 127.0.0.1 only, serves app\ui and runs each tool
 # as a child process (worker.py) so a run can be stopped and a crash never takes the window down.
-# Started by "Partnership Tools.bat" with pyembed\pythonw.exe (no console window).
+# Started by "Upselling Tools.bat" with pyembed\pythonw.exe (no console window).
 #   python.exe app\server.py --diag   -> same server with the log in a console (for troubleshooting)
 import os, re, sys, json, time, glob, codecs, shutil, socket, zipfile, ctypes, tempfile, threading, subprocess, webbrowser
 import urllib.request, urllib.error, unicodedata
@@ -13,14 +13,15 @@ from common import APP, ROOT, DUMP, OUTPUT
 
 PORT    = 8713
 HOST    = "127.0.0.1"
-NAME    = "Partnership Tools"
+NAME    = "Upselling Tools"
 UI      = os.path.join(APP, "ui")
 VERFILE = os.path.join(ROOT, "VERSION")
 CFGFILE = os.path.join(APP, "update.json")
 TOKFILE = os.path.join(DUMP, "ui_token.txt")
 LOGFILE = os.path.join(DUMP, "server.log")
 UPLOADS = os.path.join(DUMP, "uploads")
-BAT     = os.path.join(ROOT, "Partnership Tools.bat")
+BAT     = os.path.join(ROOT, "Upselling Tools.bat")
+if not os.path.exists(BAT): BAT = os.path.join(ROOT, "Partnership Tools.bat")   # copy updated from before 2.1.0
 DIAG    = "--diag" in sys.argv
 
 PY = [sys.executable] if sys.executable else ["py", "-3.12"]
@@ -708,16 +709,22 @@ def already_running():
 def shortcuts():
     """Unzip-and-run: the first start adds the app to the Desktop and the Start menu,
     pointing at this copy, so next time nobody has to find the extracted folder. An existing shortcut
-    (from Install.bat or an earlier start) is left alone."""
+    (from Install.bat or an earlier start) is left alone. The old "Partnership Tools" shortcut pointing at
+    this copy is removed (renamed in 2.1.0), so nobody ends up with two icons."""
     if os.name != "nt": return
     target = os.path.join(APP, "pyembed", "pythonw.exe")
     if not os.path.exists(target): return
     ps = ("$s = New-Object -ComObject WScript.Shell;"
           "foreach ($d in @([Environment]::GetFolderPath('Programs'), [Environment]::GetFolderPath('Desktop'))) {"
+          " $o = Join-Path $d 'Partnership Tools.lnk';"
+          " if ((Test-Path -LiteralPath $o) -and ($s.CreateShortcut($o).Arguments -like '*%s*')) {"
+          " Remove-Item -LiteralPath $o -Force } };"
+          "foreach ($d in @([Environment]::GetFolderPath('Programs'), [Environment]::GetFolderPath('Desktop'))) {"
           " $p = Join-Path $d '%s.lnk'; if (Test-Path -LiteralPath $p) { continue };"
           " $l = $s.CreateShortcut($p); $l.TargetPath = '%s'; $l.Arguments = '\"%s\"'; $l.WorkingDirectory = '%s';"
           " $l.IconLocation = '%s,0'; $l.Description = '%s - PVI Digital'; $l.Save() }"
-          % (NAME, target, os.path.join(APP, "server.py"), ROOT, os.path.join(UI, "app.ico"), NAME))
+          % (os.path.join(APP, "server.py").replace("'", "''"), NAME, target, os.path.join(APP, "server.py"), ROOT,
+             os.path.join(UI, "app.ico"), NAME))
     try:
         subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps], timeout=60,
                        creationflags=NO_WINDOW, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

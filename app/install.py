@@ -1,5 +1,5 @@
 # One-click install, run by "Install.bat" from the extracted zip.
-# Copies the tool to %LOCALAPPDATA%\Programs\Partnership-Tools, then adds "Partnership Tools" to the Start menu
+# Copies the tool to %LOCALAPPDATA%\Programs\Partnership-Tools (folder name kept), then adds "Upselling Tools" to the Start menu
 # (so Windows search finds it and it can be pinned to the taskbar) and to the Desktop.
 # Running it again over an existing install replaces the code only: output\, app\dump
 # and app\update.json stay as they are.
@@ -8,7 +8,7 @@ import os, sys, stat, time, shutil, socket, subprocess
 SRC  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEST = os.path.join(os.environ.get("LOCALAPPDATA") or os.path.expanduser(r"~\AppData\Local"),
                     "Programs", "Partnership-Tools")
-NAME = "Partnership Tools"
+NAME = "Upselling Tools"
 PORT = 8713
 NO_WINDOW = 0x08000000
 
@@ -63,11 +63,13 @@ def shortcuts(dirs="@([Environment]::GetFolderPath('Programs'), [Environment]::G
     args   = '"%s"' % os.path.join(DEST, "app", "server.py")
     icon   = os.path.join(DEST, "app", "ui", "app.ico")
     ps = ("$s = New-Object -ComObject WScript.Shell;"
+          "foreach ($d in %s) { $o = Join-Path $d 'Partnership Tools.lnk';"   # old name (before 2.1.0)
+          " if (Test-Path -LiteralPath $o) { Remove-Item -LiteralPath $o -Force } };"
           "foreach ($d in %s) {"
           " $l = $s.CreateShortcut((Join-Path $d '%s.lnk'));"
           " $l.TargetPath = '%s'; $l.Arguments = '%s'; $l.WorkingDirectory = '%s';"
-          " $l.IconLocation = '%s,0'; $l.Description = 'Partnership Tools - PVI Digital'; $l.Save() }"
-          % (dirs, NAME, target, args, DEST, icon))
+          " $l.IconLocation = '%s,0'; $l.Description = 'Upselling Tools - PVI Digital'; $l.Save() }"
+          % (dirs, dirs, NAME, target, args, DEST, icon))
     subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
                    check=True, creationflags=NO_WINDOW)
 
@@ -86,14 +88,14 @@ def main():
             print("Could not overwrite these files (open in another program, or blocked):")
             for b in bad[:10]: print("  " + b)
             if any(os.path.basename(b).lower() != "install.bat" for b in bad):
-                print("Close Partnership Tools and any window showing that folder, then run Install.bat again.")
+                print("Close Upselling Tools and any window showing that folder, then run Install.bat again.")
                 return 1
             print("Only the installer copy was skipped, the app itself is in place.")
     print("Adding shortcuts (Start menu + Desktop) ...")
     shortcuts()
     subprocess.Popen([os.path.join(DEST, "app", "pyembed", "pythonw.exe"),
                       os.path.join(DEST, "app", "server.py")], cwd=DEST, creationflags=NO_WINDOW)
-    print("Done. Open it any time: press Windows, type 'Partnership' and pick '%s'." % NAME)
+    print("Done. Open it any time: press Windows, type 'Upselling' and pick '%s'." % NAME)
     print("To pin: right-click '%s' in the Start menu > Pin to taskbar." % NAME)
     if not same:
         print("You can delete the extracted folder now: " + SRC)
