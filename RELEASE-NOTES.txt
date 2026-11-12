@@ -1,3 +1,6 @@
+v2.0.0 (12/11/2026)
+- Invoice requests (XHĐ): release with the changes of 1.1.0 and 1.1.1 (bulk slips for unit 13, Print + Accounting folders in the zip, new motorbike GCNBH layout).
+
 v1.1.1 (12/11/2026)
 - Invoice requests (XHĐ): fees are read from the new motorbike GCNBH layout (Phí bảo hiểm: ..., TỔNG PHÍ BH: ...). Before, these slips asked to fill the fee lines by hand.
 
