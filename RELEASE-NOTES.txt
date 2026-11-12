@@ -1,3 +1,8 @@
+v1.1.0 (12/11/2026)
+- Invoice requests (XHĐ): bulk slips for khách lẻ work again for policies of unit 13 (26/45/13/...). Before, every PIAS row of unit 13 was left out, so only the request slips came out.
+- Invoice requests (XHĐ): the zip now has two folders. Print keeps the layout as before. Accounting has one folder per customer request (its own PTT, the GCNBH and, after the tax lookup, the Tax ID printout) and one folder per bulk slip (PTT + list).
+- Invoice requests (XHĐ): the PIAS warning now names the unit codes left out.
+
 v1.0.9 (05/11/2026)
 - Rabbit Care: two upload boxes, one for the policy export (needed) and one for the SĐBS export (optional). Without a SĐBS file the Điều chỉnh line is 0. A warning shows when a file sits in the wrong box.
 
