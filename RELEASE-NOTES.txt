@@ -1,3 +1,7 @@
+v2.1.0 (12/11/2026)
+- The app is now called Upselling Tools, with a new chart icon. The Desktop and Start menu shortcut is renamed on the next start: the old Partnership Tools shortcut goes away and an Upselling Tools one takes its place.
+- Search Windows for 'Upselling' to open it. A taskbar pin made with the old name has to be pinned again.
+
 v2.0.0 (12/11/2026)
 - Invoice requests (XHĐ): release with the changes of 1.1.0 and 1.1.1 (bulk slips for unit 13, Print + Accounting folders in the zip, new motorbike GCNBH layout).
 
