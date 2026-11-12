@@ -4,7 +4,7 @@
   "retail_customer": "Khách lẻ - Bán cho người tiêu dùng",
   "personal_suffix": " - Bán cho người tiêu dùng",
   "status_include": ["02"],
-  "units": ["04"],
+  "units": ["04", "13"],
   "partners": {
     "PVI PLUS": "Online",
     "ONLINE": "Online",

@@ -260,7 +260,7 @@ def env_info():
 # ------------------------------------------------------------------ XHD: Tax ID printouts (Cuc Thue)
 # One lookup session for the whole list, kept in this process because the user types captchas
 # between calls. The captcha is read by ddddocr first; only when that fails the user types it.
-TAX = {"lk": None, "out": "", "zip": "", "todo": [], "state": {}, "rows": {}, "img": None, "msg": "", "manual": set()}
+TAX = {"lk": None, "out": "", "root": "", "zip": "", "todo": [], "state": {}, "rows": {}, "img": None, "msg": "", "manual": set()}
 TLOCK = threading.Lock()
 
 
@@ -286,8 +286,8 @@ def _captcha_view(png):
 
 
 def _rezip():
-    """The run's zip again, now with the TaxID printouts (same layout: GCN and TaxID folders)."""
-    out = TAX["out"]
+    """The run's zip again, now with the TaxID printouts (Print folder with GCN and TaxID, Accounting folder per customer)."""
+    out = TAX["root"] or TAX["out"]
     with zipfile.ZipFile(TAX["zip"], "w", zipfile.ZIP_DEFLATED) as z:
         for base, _d, files in os.walk(out):
             for f in files:
@@ -312,7 +312,7 @@ def tax_start(job_dir):
         if TAX["lk"]:
             try: TAX["lk"].close()
             except Exception: pass
-        TAX.update(lk=None, out=t.get("out", ""), zip=t.get("zip", ""), todo=t.get("todo") or [], state={}, rows={},
+        TAX.update(lk=None, out=t.get("out", ""), root=t.get("root", ""), zip=t.get("zip", ""), todo=t.get("todo") or [], state={}, rows={},
                    img=None, msg="", manual=set())
         return tax_view()
 
@@ -329,7 +329,13 @@ def tax_step(action, code=""):
             TAX["state"][mst] = "Saved" if r["ok"] else ("Not found" if r["not_found"] else "Saved, check")
             TAX["rows"][mst] = " | ".join(r["rows"][0]) if r["rows"] else ""
             TAX["img"], TAX["msg"] = None, ""
-            if r.get("pdf"): _rezip()
+            if r.get("pdf"):
+                for t in TAX["todo"]:                      # same printout into each accounting folder of this tax ID
+                    if t["mst"] == mst:
+                        for d in t.get("acct") or []:
+                            try: shutil.copy2(r["pdf"], d)
+                            except OSError as ex: log("tax copy %s: %r" % (d, ex))
+                _rezip()
         try:
             if TAX["lk"] is None: TAX["lk"] = T.Lookup()
             lk = TAX["lk"]

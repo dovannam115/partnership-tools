@@ -551,7 +551,7 @@ def plan_bulk(inp, cfg, warns, held=None):
     def col(r, c):
         return r.get(c) if c in r else None
 
-    rows, other_unit, other_prod, other_code, bad_status = [], 0, set(), {}, 0
+    rows, other_unit, other_prod, other_code, bad_status = [], {}, set(), {}, 0
     for r in pias.to_dict("records"):
         pol = txt(r["Số đơn BH/SĐBS"])
         if not pol or pol.count("/") < 3:
@@ -564,7 +564,8 @@ def plan_bulk(inp, cfg, warns, held=None):
             other_prod.add(prod)
             continue
         if units and unit_of(pol) not in units:
-            other_unit += 1
+            u = unit_of(pol)
+            other_unit[u] = other_unit.get(u, 0) + 1
             continue
         pc = prods[prod]
         code = txt(r["Mã sp"])
@@ -594,7 +595,9 @@ def plan_bulk(inp, cfg, warns, held=None):
     if bad_status:
         warns.append(f"PIAS: {bad_status} row(s) with a status other than {', '.join(sorted(keep_status))} left out.")
     if other_unit:
-        warns.append(f"PIAS: {other_unit} row(s) of other units (not {', '.join(sorted(units))}) left out.")
+        warns.append(f"PIAS: {sum(other_unit.values())} row(s) of other units left out ("
+                     + ", ".join(f"unit {u}: {n}" for u, n in sorted(other_unit.items()))
+                     + f"; bulk units are {', '.join(sorted(units))} in config.json).")
     if other_prod - {""}:
         warns.append("PIAS: products without a bulk rule left out: " + ", ".join(sorted(other_prod - {""})) + ".")
     for c, n in other_code.items():
@@ -973,7 +976,9 @@ def run_loaded(inp, out_dir, cfg=None, period=None, slip_date=None, tax=True, gc
         log("Grouping uninvoiced policies")
         df = plan_bulk(inp, cfg, warns, held=res["held"])
         cand = bulk_candidates(df)
-        if cand is None or cand.empty:
+        if df is None or df.empty:
+            warns.append("Bulk: no PIAS row passed the filters (unit, status, product), see the PIAS warnings above.")
+        elif cand.empty:
             warns.append("Bulk: every policy in the PIAS export already has an invoice or a request.")
         else:
             a, b = period or suggest_period(cand)
@@ -999,3 +1004,37 @@ def run_loaded(inp, out_dir, cfg=None, period=None, slip_date=None, tax=True, gc
                              "their own invoice: " + ", ".join(res["held"]) + ".")
     res["outputs"] = outputs
     return res
+
+
+# ============================================================================ bo ho so gui ke toan
+def write_accounting(res, print_dir, acct_dir, cfg=None, slip_date=None):
+    """Ke toan nhan tung bo: moi yeu cau 1 thu muc (PTT rieng + GCNBH, MST them sau khi tra Cuc Thue),
+    moi nhom khach le 1 thu muc (PTT + danh sach). Thu muc in (print_dir) giu nguyen.
+    Tra ve {mst: [thu muc]} de chep ban in tra MST vao dung bo khi tra xong."""
+    import shutil
+    cfg = cfg or load_config()
+    slip_date = slip_date or dt.date.today()
+    shutil.rmtree(acct_dir, ignore_errors=True)
+    by_mst, n = {}, 0
+    items = [it for it in ((res.get("requests") or {}).get("items") or []) if it["action"] in MAKES_PTT]
+    for it in items:
+        n += 1
+        pol = safe(it["policy"].split("/")[-1]) or safe(it["code"]) or "x"
+        d = os.path.join(acct_dir, f"{n:02d}_{safe(it['product']) or 'X'}_{pol}")
+        os.makedirs(d, exist_ok=True)
+        write_ptt([request_slip(it, cfg, slip_date)], os.path.join(d, f"PTT_{pol}.docx"))
+        g = os.path.join(print_dir, "GCN", f"GCN_{safe(it['serial'] or it['policy'])}.pdf")
+        if os.path.isfile(g):
+            shutil.copy2(g, d)
+        if it["action"] == ACT_COMPANY and it["mst"]:
+            by_mst.setdefault(it["mst"], []).append(d)
+            t = os.path.join(print_dir, "TaxID", f"TaxID_{it['mst']}.pdf")
+            if os.path.isfile(t):
+                shutil.copy2(t, d)
+    for b in res.get("bulk") or []:
+        n += 1
+        d = os.path.join(acct_dir, f"{n:02d}_Retail_" + os.path.splitext(os.path.basename(b["ptt"]))[0][4:])
+        os.makedirs(d, exist_ok=True)
+        for p in (b["ptt"], b["list"]):
+            shutil.copy2(p, d)
+    return by_mst

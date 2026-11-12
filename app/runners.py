@@ -501,7 +501,8 @@ def xhd_preview(files):
 def xhd_run(preview, tu, den, lap, online=True, log=print, on_wait=None):
     """Chay engine tren du lieu da doc o preview. Tra ve dict cua xhd.run_loaded + run, zip, log_text."""
     run = preview["run"]
-    out = os.path.join(run, "output")
+    root = os.path.join(run, "output")
+    out = os.path.join(root, "Print")                             # bo in nhu cu; Accounting\ = tung bo cho ke toan
     lines = []
 
     def say(m):
@@ -509,7 +510,7 @@ def xhd_run(preview, tu, den, lap, online=True, log=print, on_wait=None):
         log(m)
 
     with one_at_a_time(on_wait):
-        shutil.rmtree(out, ignore_errors=True)                    # chay lai cung bo file: bo ket qua cu
+        shutil.rmtree(root, ignore_errors=True)                   # chay lai cung bo file: bo ket qua cu
         os.makedirs(out)
         try:
             res = X.run_loaded(preview["inp"], out, period=(tu, den) if tu and den else None, slip_date=lap,
@@ -535,20 +536,28 @@ def xhd_run(preview, tu, den, lap, online=True, log=print, on_wait=None):
         fh.write("\n".join(lines + ["", "Warnings:"] + (res["warns"] or ["(none)"])) + "\n")
     res["outputs"].append(os.path.join(out, "run-log.txt"))
     res["run"] = run
+    acct = {}
+    if (res.get("requests") or {}).get("items") or res["bulk"]:
+        say("Making one folder per customer for accounting")
+        acct = X.write_accounting(res, out, os.path.join(root, "Accounting"), slip_date=lap)
     _xhd_zip(res)
     res["log_text"] = "\n".join(lines)
-    res["tax_todo"] = [{"mst": it["mst"], "name": it.get("inv_name") or it["company"], "policy": it["policy"]}
+    res["tax_todo"] = [{"mst": it["mst"], "name": it.get("inv_name") or it["company"], "policy": it["policy"],
+                        "acct": acct.get(it["mst"], [])}
                        for it in (res["requests"] or {}).get("items", []) if it["action"] == X.ACT_COMPANY]
     return res
 
 
 def _xhd_zip(res):
-    out = os.path.join(res["run"], "output")
-    buf = io.BytesIO()                                            # giu thu muc con GCN\, TaxID\ trong zip
+    root = os.path.join(res["run"], "output")
+    buf = io.BytesIO()                                            # Print (GCN, TaxID) + Accounting/<bo>
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         for p in res["outputs"]:
             if os.path.isfile(p):
-                z.write(p, os.path.relpath(p, out))
+                z.write(p, os.path.relpath(p, root))
+        for base, _d, files in os.walk(os.path.join(root, "Accounting")):
+            for f in files:
+                z.write(os.path.join(base, f), os.path.relpath(os.path.join(base, f), root))
     res["zip"] = buf.getvalue()
 
 
@@ -592,7 +601,7 @@ def xhd_tax_auto(lk, res, mst):
 def xhd_tax_search(lk, res, mst, code):
     """Gui captcha cho 1 MST (code None = tu doc). Dung: Edge in trang ket qua ra TaxID\\TaxID_<mst>.pdf,
     them vao outputs + zip. Sai: tra kem anh captcha moi (r['captcha'])."""
-    out = os.path.join(res["run"], "output", "TaxID")
+    out = os.path.join(res["run"], "output", "Print", "TaxID")
     try:
         r = lk.auto(mst, out) if code is None else lk.search(mst, code, out)
     except T.TaxSiteError as e:
@@ -603,5 +612,9 @@ def xhd_tax_search(lk, res, mst, code):
         r["captcha"] = _captcha_view(r["captcha"])
     if r["pdf"] and r["pdf"] not in res["outputs"]:
         res["outputs"].append(r["pdf"])
+        for t in res.get("tax_todo") or []:
+            if t["mst"] == mst:
+                for d in t.get("acct") or []:
+                    shutil.copy2(r["pdf"], d)
         _xhd_zip(res)
     return r

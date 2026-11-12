@@ -179,7 +179,7 @@ def run_xhd(a):
         rows.append(["Bulk %s %s" % (g["product"], g["channel"]), g["policies"],
                      format(g["total"], ",").replace(",", "."), ""])
     zp = write(os.path.join(DIR, "XHD_%s.zip" % datetime.date.today().strftime("%Y%m%d")), res["zip"])
-    out = os.path.join(res["run"], "output")
+    out = os.path.join(res["run"], "output", "Print")
     singles = [p for p in res["outputs"] if os.path.isfile(p)
                and os.path.basename(os.path.dirname(p)) not in ("GCN", "TaxID") and not p.endswith("run-log.txt")]
     todo = []
@@ -190,7 +190,7 @@ def run_xhd(a):
             "files": [zp], "more": singles, "warns": res["warns"],
             "tables": [table("Slips", ["Slips", "Policies", "Total", "Note"], rows)] if rows else [],
             "details": res["log_text"],
-            "tax": {"out": out, "zip": zp, "todo": todo} if todo else None}
+            "tax": {"out": out, "root": os.path.dirname(out), "zip": zp, "todo": todo} if todo else None}
 
 
 # ------------------------------------------------------------------ KBank certificates
