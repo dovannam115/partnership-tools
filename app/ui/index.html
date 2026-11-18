@@ -179,7 +179,7 @@
          padding:9px 16px; border-radius:10px; font-size:13px; z-index:50; box-shadow:0 8px 30px rgba(0,0,0,.25)}
   .updbar{display:none; overflow:hidden; white-space:nowrap; cursor:pointer; background:linear-gradient(90deg,var(--ember),var(--ember-lit)); color:#fff}
   .updbar.show{display:block}
-  .updbar span{display:inline-block; padding:8px 0 8px 100%; font-weight:650; font-size:13px; letter-spacing:.2px; animation:marq 16s linear infinite}
+  .updbar span{display:inline-block; padding:8px 0 8px 100%; font-weight:650; font-size:13px; letter-spacing:.2px; animation:marq 30s linear infinite}
   .updbar:hover span{animation-play-state:paused}
   @keyframes marq{from{transform:translateX(0)} to{transform:translateX(-100%)}}
 </style>
@@ -1043,7 +1043,7 @@ async function init(){
   go(VIEWS[start] ? start : "d2c");
   poll();
   api("/api/env").then(e => { ENV = e; draw(); });
-  if(!UPDINFO) setTimeout(() => checkUpd(false), 2500);
+  setTimeout(() => checkUpd(false), 2500);   // always a fresh check on open, so the banner shows on its own
   setInterval(() => checkUpd(false), 15 * 60 * 1000);   // notice a new release while the app stays open
   setInterval(() => api("/api/ping", {}), 30000); api("/api/ping", {});
 }
