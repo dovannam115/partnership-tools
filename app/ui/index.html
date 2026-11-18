@@ -177,6 +177,11 @@
   .modal h2{margin:0 0 10px; font-size:15px}
   .toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--fg); color:var(--bg);
          padding:9px 16px; border-radius:10px; font-size:13px; z-index:50; box-shadow:0 8px 30px rgba(0,0,0,.25)}
+  .updbar{display:none; overflow:hidden; white-space:nowrap; cursor:pointer; background:linear-gradient(90deg,var(--ember),var(--ember-lit)); color:#fff}
+  .updbar.show{display:block}
+  .updbar span{display:inline-block; padding:8px 0 8px 100%; font-weight:650; font-size:13px; letter-spacing:.2px; animation:marq 16s linear infinite}
+  .updbar:hover span{animation-play-state:paused}
+  @keyframes marq{from{transform:translateX(0)} to{transform:translateX(-100%)}}
 </style>
 </head>
 <body>
@@ -195,6 +200,7 @@
 </aside>
 
 <main>
+  <div class="updbar" id="updbar"></div>
   <header><h1 id="title"></h1><div class="sp"></div><div id="hstatus" class="status"></div></header>
   <div class="wrap" id="view"></div>
 </main>
@@ -510,6 +516,33 @@ function setLang(l){
 }
 
 // ------------------------------------------------------------ nav + theme
+const UPD_LINES = [
+  "Có bản mới rồi ní, cập nhật đi cho mượt!!!",
+  "Bản mới ra lò còn nóng, cập nhật phát cho đỡ lag nào!!!",
+  "Ê ní, có hàng mới nè, bấm Cập nhật liền tay đi!!!",
+  "Tool vừa thay áo mới, lên đời cho đẹp nào!!!",
+  "Phiên bản mới gọi tên bạn rồi đó, cập nhật thôi!!!",
+  "Xài bản cũ hoài sao đành, có bản mới kìa kìa!!!",
+  "Bản mới toanh, lẹ tay kẻo lỡ chuyện hay!!!",
+  "Lên đời đi ní, bản mới đang đứng chờ trước cửa!!!",
+  "Có đồ mới ngon lành, cập nhật cho chạy vù vù!!!",
+  "Bản mới về rồi, bấm cái cho mượt như nhung nhé!!!"
+];
+function updLine(v){
+  let h = 0; for(const c of String(v || "")) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return UPD_LINES[h % UPD_LINES.length];
+}
+function drawUpdBar(){
+  const el = $("updbar"); if(!el) return;
+  const on = !!(UPDINFO && UPDINFO.available);
+  el.className = "updbar" + (on ? " show" : "");
+  if(on){
+    const line = updLine(UPDINFO.latest) + "  \u00b7  b\u1ea5m \u0111\u1ec3 c\u1eadp nh\u1eadt v" + (UPDINFO.latest || "");
+    el.innerHTML = '<span>' + esc(line) + "  \u00b7  " + esc(line) + '</span>';
+    el.onclick = () => go("upd");
+  }
+}
+
 function drawNav(){
   let h = "";
   NAV.forEach(([g, items]) => {
@@ -523,6 +556,7 @@ function drawNav(){
     });
   });
   $("nav").innerHTML = h;
+  drawUpdBar();
 }
 function setTheme(t){ document.documentElement.dataset.theme = t; $("themeBtn").textContent = t === "dark" ? "Light mode" : "Dark mode";
   try { localStorage.setItem("ct_theme", t); } catch(e){} }
