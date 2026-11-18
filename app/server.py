@@ -508,6 +508,8 @@ def update_job(mode, zip_path=""):
 # ------------------------------------------------------------------ http
 TOKEN = ""
 LAST_PING = [time.time()]
+IDLE_CLOSE = 8 * 3600      # a hidden window stops pinging (the browser freezes its timers), so give
+                           # the tool a whole working day before it closes itself
 SHUTDOWN = []
 MIME = {".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         ".xlsm": "application/vnd.ms-excel.sheet.macroEnabled.12", ".zip": "application/zip",
@@ -737,8 +739,8 @@ def watchdog():
     while True:
         time.sleep(10)
         if any(j.state == "running" for j in JOBS.values()): LAST_PING[0] = time.time(); continue
-        if time.time() - LAST_PING[0] > 120:
-            log("no page for 2 minutes, closing"); SHUTDOWN and SHUTDOWN[0](); return
+        if time.time() - LAST_PING[0] > IDLE_CLOSE:
+            log("no page for %d hours, closing" % (IDLE_CLOSE // 3600)); SHUTDOWN and SHUTDOWN[0](); return
 
 
 def main():
