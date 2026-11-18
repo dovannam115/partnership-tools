@@ -1044,6 +1044,7 @@ async function init(){
   poll();
   api("/api/env").then(e => { ENV = e; draw(); });
   if(!UPDINFO) setTimeout(() => checkUpd(false), 2500);
+  setInterval(() => checkUpd(false), 15 * 60 * 1000);   // notice a new release while the app stays open
   setInterval(() => api("/api/ping", {}), 30000); api("/api/ping", {});
 }
 init();
