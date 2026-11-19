@@ -1,3 +1,7 @@
+v2.1.10 (19/11/2026)
+- New Settings button at the bottom of the left bar. It opens a dialog over the page with General (language), Appearance (theme, font, text size), Data (output folder) and Updates.
+- Update is no longer an item in the tool list; the update banner opens Settings > Updates.
+
 v2.1.9 (19/11/2026)
 - System update.
 

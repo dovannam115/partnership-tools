@@ -26,7 +26,7 @@
   *{box-sizing:border-box}
   html,body{height:100%;margin:0}
   body{background:var(--bg); color:var(--fg); display:flex;
-       font:14px/1.45 "Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+       font:14px/1.45 var(--ui-font,"Segoe UI"),"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
        -webkit-font-smoothing:antialiased; letter-spacing:-.006em}
   ::selection{background:rgba(217,119,87,.30)}
   ::-webkit-scrollbar{width:10px;height:10px}
@@ -175,6 +175,47 @@
   .modal{background:var(--card); border:1px solid var(--line); border-radius:14px; width:min(560px,100%); padding:18px 20px;
          box-shadow:0 18px 50px rgba(0,0,0,.35)}
   .modal h2{margin:0 0 10px; font-size:15px}
+  .srow{display:flex; align-items:center; gap:24px; padding:16px 0; border-bottom:1px solid var(--line)}
+  .srow:last-child{border-bottom:0}
+  .srow > div:first-child{flex:1; min-width:0}
+  .srow b{display:block; font-weight:600; font-size:13.5px}
+  .srow small{display:block; color:var(--muted); font-size:12.5px; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .sctl{flex:0 0 auto; display:flex; gap:8px; align-items:center}
+  .setbtn{position:relative} .setbtn .dot{position:absolute; top:6px; right:8px}
+  .sveil{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.55); backdrop-filter:blur(4px); display:flex;
+         align-items:center; justify-content:center; padding:16px; animation:sfade .18s ease-out both}
+  .sbox{width:min(800px,100%); background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+        box-shadow:0 26px 80px rgba(0,0,0,.45); animation:sscale .24s cubic-bezier(.22,1,.36,1) both}
+  @keyframes sfade{from{opacity:0} to{opacity:1}}
+  @keyframes sscale{from{opacity:0; transform:scale(.96)} to{opacity:1; transform:none}}
+  .shead{display:flex; align-items:center; justify-content:space-between; padding:15px 22px; border-bottom:1px solid var(--line)}
+  .shead h2{margin:0; font-size:17px; font-weight:650}
+  .sx{background:none; border:0; color:var(--muted); padding:5px; border-radius:8px; display:flex}
+  .sx:hover{background:var(--hover); color:var(--fg)}
+  .sx svg{width:18px; height:18px}
+  .sgrid{display:grid; grid-template-columns:180px minmax(0,1fr); height:min(480px,70vh)}
+  .snav{border-right:1px solid var(--line); padding:12px; display:flex; flex-direction:column; gap:2px}
+  .snav button{display:flex; align-items:center; gap:10px; background:none; border:0; text-align:left; padding:8px 11px;
+               border-radius:9px; color:var(--muted); font-size:13px}
+  .snav button:hover{background:var(--hover); color:var(--fg)}
+  .snav button.on{background:var(--hover); color:var(--fg)}
+  .snav svg{width:15px; height:15px; flex:0 0 15px; color:var(--dim)}
+  .snav button.on svg{color:var(--ember)}
+  .snav .dot{margin-left:auto}
+  .sbody{overflow-y:auto; padding:20px 26px}
+  .sbody .srow{padding:14px 0}
+  .sbody h3{font-size:12px; font-weight:600; color:var(--dim); letter-spacing:.08em; text-transform:uppercase; margin:22px 0 0}
+  .sbody .sctl .seg{min-width:230px} .sbody .sctl select{min-width:200px} .sbody .sctl .inp{width:220px}
+  .sblock{padding:6px 0 16px; border-bottom:1px solid var(--line)}
+  .sblock > b{display:block; font-weight:600; font-size:13.5px; margin-bottom:10px}
+  .tcards{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .tcard{display:flex; flex-direction:column; align-items:center; gap:8px; padding:18px 12px; border-radius:12px; background:none;
+         border:1px solid var(--line); color:var(--muted); font-size:13px}
+  .tcard:hover{border-color:var(--line2); color:var(--fg)}
+  .tcard.on{border-color:var(--ember); background:rgba(201,100,66,.08); color:var(--fg)}
+  .tcard svg{width:22px; height:22px; color:var(--dim)} .tcard.on svg{color:var(--ember)}
+  .sfoot{display:flex; justify-content:flex-end; padding:12px 22px; border-top:1px solid var(--line)}
+  @media (max-width:640px){.sgrid{grid-template-columns:1fr; height:auto; max-height:75vh} .snav{flex-direction:row; flex-wrap:wrap; border-right:0; border-bottom:1px solid var(--line)}}
   .toast{position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:var(--fg); color:var(--bg);
          padding:9px 16px; border-radius:10px; font-size:13px; z-index:50; box-shadow:0 8px 30px rgba(0,0,0,.25)}
   .updbar{display:none; overflow:hidden; white-space:nowrap; cursor:pointer; background:linear-gradient(90deg,var(--ember),var(--ember-lit)); color:#fff}
@@ -189,11 +230,7 @@
   <div class="brand"><img id="logo" alt=""><div><b>Upselling Tools</b></div></div>
   <nav id="nav"></nav>
   <div class="side-end">
-    <div class="row">
-      <button class="btn sm gho" style="flex:1" onclick="openOut()" title="Open the folder with every result file">Output</button>
-      <button class="btn sm gho" style="flex:1" id="themeBtn" onclick="toggleTheme()">Light mode</button>
-    </div>
-    <div class="seg" id="langSeg"><button data-l="en" onclick="setLang('en')">English</button><button data-l="vi" onclick="setLang('vi')">Tiếng Việt</button></div>
+    <button class="btn sm gho setbtn" id="setBtn" onclick="openSettings()">Settings<span class="dot" id="setDot"></span></button>
     <button class="btn sm gho" onclick="quit()">Quit</button>
     <div class="ver" id="ver">v...</div>
   </div>
@@ -215,7 +252,6 @@ const NAV = [
   ["Reconcile", [["d2c","D2C VNPAY"],["rabbit","Rabbit Care"]]],
   ["Slips & invoices", [["ptt","PTT slips (GSM)"],["xhd","Invoice requests (XHĐ)"],["inv","Invoice PDFs"]]],
   ["Certificates", [["kbank","KBank certificates"]]],
-  ["", [["upd","Update"]]],
 ];
 const TITLES = {}; NAV.forEach(([,it]) => it.forEach(([k,t]) => TITLES[k] = t));
 const S = {};            // per-tool form state, kept while switching tools
@@ -254,6 +290,10 @@ function st(tool){ return S[tool] || (S[tool] = {}); }
 // chips are data and stay as they are (a td with class "t" is a label and is translated).
 let LANG = "en"; try { LANG = localStorage.getItem("ct_lang") === "vi" ? "vi" : "en"; } catch(e){}
 const VI = {
+  "Settings": "Cài đặt", "Close": "Đóng", "Done": "Xong", "Theme": "Nền", "General": "Chung", "Appearance": "Giao diện",
+  "Account": "Tài khoản", "Data": "Dữ liệu", "Updates": "Cập nhật", "Language": "Ngôn ngữ", "Font": "Font chữ", "Text size": "Cỡ chữ",
+  "Small": "Nhỏ", "Normal": "Vừa", "Large": "Lớn", "Extra large": "Rất lớn", "Fabric account": "Tài khoản Fabric",
+  "Switch account": "Đổi tài khoản", "Install from a zip file": "Cài từ file zip", "What is new": "Có gì mới",
   // shell
   "Output": "Kết quả", "Light mode": "Nền sáng", "Dark mode": "Nền tối", "Quit": "Thoát",
   "Open the folder with every result file": "Mở thư mục chứa mọi file kết quả",
@@ -515,6 +555,82 @@ function setLang(l){
   if(LANG === "vi") localize(document.body); else unlocalize();
 }
 
+// ------------------------------------------------------------ settings dialog (theme, language, font, text size; kept per PC)
+const FONTS = ["Segoe UI", "Calibri", "Arial", "Tahoma", "Verdana", "Barlow", "Be Vietnam Pro", "Roboto", "Inter"];
+const SIZES = [["Small", 0.92], ["Normal", 1], ["Large", 1.1], ["Extra large", 1.2]];
+let SETSEC = "general";
+function pref(k, v){ try { if(v !== undefined) localStorage.setItem(k, v); return localStorage.getItem(k); } catch(e){ return null; } }
+function hasFont(f){
+  const c = document.createElement("canvas").getContext("2d"), t = "mmmmmmmmmmlli1WĐường";
+  c.font = "24px monospace"; const a = c.measureText(t).width;
+  c.font = '24px "' + f + '",monospace'; return c.measureText(t).width !== a;
+}
+function applyFont(){ document.documentElement.style.setProperty("--ui-font", '"' + (pref("ct_font") || "Segoe UI") + '"'); }
+function applySize(){ document.documentElement.style.zoom = +(pref("ct_zoom") || 1); }
+function setFont(f){ pref("ct_font", f); applyFont(); }
+function setSize(z){ pref("ct_zoom", z); applySize(); rerenderSettings(); }
+const ICON = {
+  general: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+  appearance: '<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/>',
+  account: '<circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
+  data: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  updates: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  light: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  dark: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+};
+function svg(k){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + ICON[k] + '</svg>'; }
+function srow(label, sub, ctl){ return '<div class="srow"><div><b>' + esc(label) + '</b>' + (sub ? '<small class="keep" title="' + esc(sub) + '">' + esc(sub) + '</small>' : "") + '</div><div class="sctl">' + ctl + '</div></div>'; }
+function sseg(items, on, fn){ return '<div class="seg">' + items.map(([lb, v]) => '<button class="' + (v === on ? "on" : "") + '" onclick="' + fn + '(' +
+  JSON.stringify(v).replace(/"/g, "'") + ')">' + esc(lb) + '</button>').join("") + '</div>'; }
+function updRows(done, busy, install, zipName, zipRun){
+  const u = UPDINFO;
+  let msg = "Checking...", ctl = '<button class="btn sm" onclick="checkUpd(true)">Check for updates</button>';
+  if(u){
+    if(!u.configured) msg = "Updates are not set up in this copy (app\\update.json has no repo).";
+    else if(u.error) msg = "Cannot check: " + u.error + ".";
+    else if(u.available){ msg = "Version " + u.latest + " is available."; if(!done && !busy) ctl = '<button class="btn sm pri" onclick="' + install + '">Download and install</button>'; }
+    else msg = "This is the latest version.";
+  }
+  if(done) ctl = '<button class="btn sm pri" onclick="restart()">Restart the tool</button>';
+  return srow("Version " + VER, msg, ctl) +
+    srow("Install from a zip file", "", '<input class="inp" id="zipPath" placeholder="' + zipName + '"><button class="btn sm" onclick="' + zipRun + '">Install</button>');
+}
+function notesHtml(){ return UPDINFO && UPDINFO.notes ? '<h3>What is new</h3><div class="notes" style="margin-top:10px">' + esc(UPDINFO.notes) + '</div>' : ""; }
+const SETPANES = {
+  general: () => srow("Language", "", sseg([["English", "en"], ["Tiếng Việt", "vi"]], LANG, "setLangS")),
+  appearance: () => {
+    const f = pref("ct_font") || "Segoe UI", z = +(pref("ct_zoom") || 1), th = document.documentElement.dataset.theme;
+    return '<div class="sblock"><b>Theme</b><div class="tcards">' + [["light", "Light mode"], ["dark", "Dark mode"]].map(([k, lb]) =>
+        '<button class="tcard' + (k === th ? " on" : "") + '" onclick="setThemeS(\'' + k + '\')">' + svg(k) + '<span>' + esc(lb) + '</span></button>').join("") + '</div></div>' +
+      srow("Font", "", '<select onchange="setFont(this.value)">' + FONTS.filter(x => x === f || hasFont(x)).map(x => '<option value="' + esc(x) +
+        '" style="font-family:\'' + x + '\'" ' + (x === f ? "selected" : "") + '>' + esc(x) + '</option>').join("") + '</select>') +
+      srow("Text size", "", sseg(SIZES, z, "setSize"));
+  },
+};
+const SET_NAMES = {general:"General", appearance:"Appearance", account:"Account", data:"Data", updates:"Updates"};
+function openSettings(sec){ if(sec) SETSEC = sec; renderSettings(); }
+function closeSettings(){ const d = $("setbox"); if(d) d.remove(); }
+function rerenderSettings(){ if($("setbox")) renderSettings(); }
+function renderSettings(){
+  const keys = Object.keys(SET_NAMES).filter(k => SETPANES[k]), sec = SETPANES[SETSEC] ? SETSEC : "general";
+  const old = $("setbox"), d = document.createElement("div");
+  d.id = "setbox"; d.className = "sveil";
+  d.onclick = e => { if(e.target === d) closeSettings(); };
+  d.innerHTML = '<div class="sbox"><div class="shead"><h2>Settings</h2><button class="sx" title="Close" onclick="closeSettings()">' + svg("close") + '</button></div>' +
+    '<div class="sgrid"><div class="snav">' + keys.map(k => '<button class="' + (k === sec ? "on" : "") + '" onclick="openSettings(\'' + k + '\')">' + svg(k) +
+      '<span>' + esc(SET_NAMES[k]) + '</span>' + (k === "updates" && UPDINFO && UPDINFO.available ? '<span class="dot new"></span>' : "") + '</button>').join("") + '</div>' +
+    '<div class="sbody">' + SETPANES[sec]() + '</div></div>' +
+    '<div class="sfoot"><button class="btn sm" onclick="closeSettings()">Done</button></div></div>';
+  if(old){ d.style.animation = "none"; d.firstChild.style.animation = "none"; old.replaceWith(d); } else document.body.appendChild(d);
+  if(LANG === "vi") localize(d);
+  if(sec === "updates" && typeof drawRun === "function" && typeof JOBS !== "undefined" && JOBS.update) drawRun(CUR);
+}
+document.addEventListener("keydown", e => { if(e.key === "Escape") closeSettings(); });
+function setThemeS(t){ setTheme(t); rerenderSettings(); }
+function setLangS(l){ setLang(l); rerenderSettings(); }
+applyFont(); applySize();
+
 // ------------------------------------------------------------ nav + theme
 const UPD_LINES = [
   "Có bản mới rồi ní, cập nhật đi cho mượt!!!",
@@ -539,7 +655,7 @@ function drawUpdBar(){
   if(on){
     const line = updLine(UPDINFO.latest) + "  \u00b7  b\u1ea5m \u0111\u1ec3 c\u1eadp nh\u1eadt v" + (UPDINFO.latest || "");
     el.innerHTML = '<span>' + esc(line) + "  \u00b7  " + esc(line) + '</span>';
-    el.onclick = () => go("upd");
+    el.onclick = () => openSettings("updates");
   }
 }
 
@@ -556,9 +672,10 @@ function drawNav(){
     });
   });
   $("nav").innerHTML = h;
+  if($("setDot")) $("setDot").className = "dot" + (UPDINFO && UPDINFO.available ? " new" : "");
   drawUpdBar();
 }
-function setTheme(t){ document.documentElement.dataset.theme = t; $("themeBtn").textContent = t === "dark" ? "Light mode" : "Dark mode";
+function setTheme(t){ document.documentElement.dataset.theme = t; if($("themeBtn")) $("themeBtn").textContent = t === "dark" ? "Light mode" : "Dark mode";
   try { localStorage.setItem("ct_theme", t); } catch(e){} }
 function toggleTheme(){ setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"); }
 try { setTheme(localStorage.getItem("ct_theme") || "dark"); } catch(e){ setTheme("dark"); }
@@ -655,13 +772,14 @@ function poll(){
     }
   }, 700);
 }
-function panelFor(tool){ return tool === "upd" ? ["update"] : [tool]; }
+function panelFor(tool){ return panelFor0(tool).concat(tool === "upd" ? [] : ["update"]); }
+function panelFor0(tool){ return tool === "upd" ? ["update"] : [tool]; }
 function drawRun(tool){
   if(HEAD[tool]) HEAD[tool]();
   panelFor(tool).forEach(t => {
     const box = $("run-" + t); if(!box) return;
     const j = JOBS[t];
-    if(!j){ box.innerHTML = '<div class="empty">' + esc(EMPTY[t] || "Results show here.") + '</div>'; return; }
+    if(!j){ box.innerHTML = '<div class="empty">' + (EMPTY[t] === "" ? "" : esc(EMPTY[t] || "Results show here.")) + '</div>'; return; }
     box.innerHTML = runHtml(t, j);
   });
 }
@@ -745,6 +863,12 @@ function tableHtml(t, i, tb){
 
 // ------------------------------------------------------------ tools
 const VIEWS = {}, HEAD = {}, AFTER = {}, ONFILE = {}, DONE = {}, EXTRA = {}, EMPTY = {};
+SETPANES.data = () => srow("Output", "", '<button class="btn sm gho" onclick="openOut()">Open</button>');
+SETPANES.updates = () => {
+  const j = JOBS.update, done = j && j.state === "done", busy = j && j.state === "running";
+  return updRows(done, busy, "run('update',{},'Update')", "partnership-tools-main.zip", "runZip()") + '<div id="run-update" style="margin-top:12px"></div>' + notesHtml();
+};
+
 const busyT = (t) => JOBS[t] && JOBS[t].state === "running";
 const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
 const ddmm = (iso) => iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) + "/" + iso.slice(0, 4) : "";
@@ -1015,12 +1139,12 @@ VIEWS.upd = () => {
     '<div class="card" id="run-update"></div></div>';
 };
 async function checkUpd(force){
-  if(force){ UPDINFO = null; if(CUR === "upd") draw(); }
-  UPDINFO = await api("/api/update/check"); drawNav(); if(CUR === "upd") draw();
+  if(force){ UPDINFO = null; if(CUR === "upd") draw(); rerenderSettings(); }
+  UPDINFO = await api("/api/update/check"); drawNav(); if(CUR === "upd") draw(); rerenderSettings();
 }
 function runZip(){ const p = $("zipPath").value.trim(); if(!p) return; api("/api/run", {tool:"update", mode:"local", zip:p}).then(r => {
   if(r.error){ toast(r.error); return; } JOBS.update = {state:"running", lines:[], total:0, label:"Update"}; poll(); draw(); }); }
-DONE.update = () => { if(CUR === "upd") draw(); };
+DONE.update = () => { if(CUR === "upd") draw(); rerenderSettings(); };
 EMPTY.update = "";
 async function restart(){ await api("/api/restart", {}); gone("Restarting..."); }
 async function quit(){
@@ -1040,6 +1164,7 @@ async function init(){
     if(r.job){ const v = r.job; JOBS[t] = {...v, lines:v.lines, total:v.total}; }
   }
   let start = "d2c"; try { start = localStorage.getItem("ct_tool") || "d2c"; } catch(e){}
+  if(start === "upd") start = "d2c";
   go(VIEWS[start] ? start : "d2c");
   poll();
   api("/api/env").then(e => { ENV = e; draw(); });
