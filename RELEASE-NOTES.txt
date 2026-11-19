@@ -1,3 +1,6 @@
+v2.1.8 (19/11/2026)
+- Tên mới: Upselling Tools - Nam Doo. Shortcut ngoài Desktop và Start menu tự đổi tên ở lần mở sau.
+
 v2.1.7 (18/11/2026)
 - Icon bỏ viền trắng quanh ngoài (để trong suốt), nhìn gọn trên taskbar.
 

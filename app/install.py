@@ -8,7 +8,7 @@ import os, sys, stat, time, shutil, socket, subprocess
 SRC  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEST = os.path.join(os.environ.get("LOCALAPPDATA") or os.path.expanduser(r"~\AppData\Local"),
                     "Programs", "Partnership-Tools")
-NAME = "Upselling Tools"
+NAME = "Upselling Tools - Nam Doo"
 PORT = 8713
 NO_WINDOW = 0x08000000
 
@@ -68,7 +68,7 @@ def shortcuts(dirs="@([Environment]::GetFolderPath('Programs'), [Environment]::G
           "foreach ($d in %s) {"
           " $l = $s.CreateShortcut((Join-Path $d '%s.lnk'));"
           " $l.TargetPath = '%s'; $l.Arguments = '%s'; $l.WorkingDirectory = '%s';"
-          " $l.IconLocation = '%s,0'; $l.Description = 'Upselling Tools - PVI Digital'; $l.Save() }"
+          " $l.IconLocation = '%s,0'; $l.Description = 'Upselling Tools - Nam Doo'; $l.Save() }"
           % (dirs, dirs, NAME, target, args, DEST, icon))
     subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
                    check=True, creationflags=NO_WINDOW)

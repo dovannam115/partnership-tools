@@ -13,7 +13,7 @@ from common import APP, ROOT, DUMP, OUTPUT
 
 PORT    = 8713
 HOST    = "127.0.0.1"
-NAME    = "Upselling Tools"
+NAME    = "Upselling Tools - Nam Doo"
 UI      = os.path.join(APP, "ui")
 VERFILE = os.path.join(ROOT, "VERSION")
 CFGFILE = os.path.join(APP, "update.json")
@@ -39,6 +39,23 @@ def log(msg):
         os.makedirs(DUMP, exist_ok=True)
         with open(LOGFILE, "a", encoding="utf-8") as f: f.write(line + "\n")
     except Exception: pass
+
+
+OLD_NAME = "Upselling Tools"
+
+def rename_old_shortcut():
+    """The app used to be called OLD_NAME: rename its Desktop and Start menu shortcuts to NAME (once)."""
+    try:
+        buf = ctypes.create_unicode_buffer(260)
+        for csidl in (0x10, 0x02):                # Desktop, Start menu Programs
+            if ctypes.windll.shell32.SHGetFolderPathW(None, csidl, None, 0, buf) != 0: continue
+            old = os.path.join(buf.value, OLD_NAME + ".lnk"); new = os.path.join(buf.value, NAME + ".lnk")
+            if os.path.exists(old):
+                if os.path.exists(new): os.remove(old)
+                else: os.rename(old, new)
+    except Exception as ex:
+        log("rename shortcut: %r" % ex)
+
 
 
 def box(msg, title=NAME):
@@ -738,7 +755,7 @@ def shortcuts():
            " Remove-Item -LiteralPath $o -Force } };" % (dirs, q(srv)))
     ps += ("foreach ($d in %s) {"
            " $p = Join-Path $d '%s.lnk'; $new = -not (Test-Path -LiteralPath $p); $l = $s.CreateShortcut($p);"
-           " if ($new) { $l.TargetPath = '%s'; $l.Arguments = '\"%s\"'; $l.WorkingDirectory = '%s'; $l.Description = '%s - PVI Digital' };"
+           " if ($new) { $l.TargetPath = '%s'; $l.Arguments = '\"%s\"'; $l.WorkingDirectory = '%s'; $l.Description = '%s' };"
            " if ($new -or $l.IconLocation -ne '%s,0') { $l.IconLocation = '%s,0'; $l.Save() } }"
            % (dirs, q(NAME), q(target), q(srv), q(ROOT), q(NAME), q(cache_ico), q(cache_ico)))
     try:
@@ -779,6 +796,7 @@ def main():
     threading.Thread(target=watchdog, daemon=True).start()
     threading.Thread(target=cleanup, daemon=True).start()
     threading.Thread(target=lambda: (time.sleep(1.5), update_check()), daemon=True).start()
+    rename_old_shortcut()
     threading.Thread(target=shortcuts, daemon=True).start()
     open_ui()
     try: srv.serve_forever()
