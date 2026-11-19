@@ -1,17 +1,17 @@
 v2.1.9 (19/11/2026)
-- Chữ Nam Doo chỉ còn ở tên app, trong tool bỏ hết (dưới logo và dòng phiên bản).
+- System update.
 
 v2.1.8 (19/11/2026)
-- Tên mới: Upselling Tools - Nam Doo. Shortcut ngoài Desktop và Start menu tự đổi tên ở lần mở sau.
+- System update.
 
 v2.1.7 (18/11/2026)
-- Icon bỏ viền trắng quanh ngoài (để trong suốt), nhìn gọn trên taskbar.
+- The icon has no white border any more (transparent edge), so it looks clean on the taskbar.
 
 v2.1.6 (18/11/2026)
-- Icon shortcut ngoài Desktop và Start menu tự đổi theo icon app sau khi cập nhật, không cần khởi động lại máy.
+- The Desktop and Start menu shortcuts take the new app icon after an update, no restart of the PC needed.
 
 v2.1.5 (18/11/2026)
-- Icon mới: chú chó vẫy tay.
+- New icon: a waving dog.
 
 v2.1.4 (18/11/2026)
 - The update banner scrolls slower and easier to read, and it now shows on its own on open (the app re-checks fresh every time).
