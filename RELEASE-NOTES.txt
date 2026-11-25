@@ -1,3 +1,8 @@
+v2.2 (25/11/2026)
+- Invoice requests (XHĐ): the slip now shows PHÒNG UPSELLING (header and signature), staff Phạm Huỳnh Thương, email bh.digital.ups@pvi.com.vn.
+- Personal invoices put the buyer's name on the slip, not the name the customer typed in the company box.
+- The request check sheet has a Số điện thoại column next to the buyer, to call customers before issuing.
+
 v2.1.10 (19/11/2026)
 - New Settings button at the bottom of the left bar. It opens a dialog over the page with General (language), Appearance (theme, font, text size), Data (output folder) and Updates.
 - Update is no longer an item in the tool list; the update banner opens Settings > Updates.

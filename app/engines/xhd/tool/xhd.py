@@ -453,7 +453,7 @@ def plan_requests(inp, cfg, warns, tax=True, gcn=True, gcn_dir=None, log=print):
             or similar(it["company"], it["buyer"]) < cfg.get("same_entity_min", 0.85))
         it["inv_type"] = "Company" if company else "Personal"
         it["name_check"] = ""
-        it["inv_name"] = it["company"] if company else (it["company"] if it["company"] and not looks_org(it["company"]) else it["buyer"])
+        it["inv_name"] = it["company"] if company else (it["buyer"] or it["company"])
         if company:
             if it["tax_name"]:
                 sc = similar(it["company"], it["tax_name"])
@@ -859,7 +859,7 @@ def write_request_check(items, path):
     wb, ws, _ = _xl_base()
     ws.title = "Yêu cầu"
     heads = ["STT", "Mã yêu cầu", "Ngày gửi", "Đối tác", "Sản phẩm", "Số GCNBH/SĐBS", "Seri", "Người mua",
-             "Tên công ty (khách nhập)", "MST / CCCD", "Tên theo MST", "Tình trạng MST", "Kiểm tra tên",
+             "Số điện thoại", "Tên công ty (khách nhập)", "MST / CCCD", "Tên theo MST", "Tình trạng MST", "Kiểm tra tên",
              "Loại hóa đơn", "Tên trên PTT", "Hóa đơn đã có", "Xử lý", "Phí chính", "VAT phí chính",
              "Phí bổ sung", "VAT phí bổ sung", "Tổng PTT", "Tổng theo yêu cầu", "Chênh lệch", "Ghi chú"]
     for i, h in enumerate(heads, 1):
@@ -872,28 +872,29 @@ def write_request_check(items, path):
         mk = it["action"] in MAKES_PTT
         name = it.get("inv_name", "") if mk else ""
         vals = [it["stt"], it["code"], it["sent"], it["partner"], it["product_name"], it["policy"], it["serial"],
-                it["buyer"], it["company"], it["mst"], it.get("tax_name", ""),
+                it["buyer"], it["phone"], it["company"], it["mst"], it.get("tax_name", ""),
                 it.get("tax_status", "") or it.get("tax_err", ""), it.get("name_check", ""),
                 it.get("inv_type", "") if mk else "", name, it["ledger"], it["action"],
                 it["a1"] if mk else None, it["v1"] if mk else None, it["a2"] if mk else None, it["v2"] if mk else None,
-                f"=SUM(R{i}:U{i})" if mk else None, it["req_total"] or None,
-                f"=V{i}-W{i}" if mk and it["req_total"] else None, " ".join(it["notes"])]
+                f"=SUM(S{i}:V{i})" if mk else None, it["req_total"] or None,
+                f"=W{i}-X{i}" if mk and it["req_total"] else None, " ".join(it["notes"])]
         for c, v in enumerate(vals, 1):
             ws.cell(i, c, v)
         ws.cell(i, 3).number_format = "dd/mm/yyyy"
-        ws.cell(i, 10).number_format = "@"
-        for c in range(18, 25):
+        ws.cell(i, 9).number_format = "@"
+        ws.cell(i, 11).number_format = "@"
+        for c in range(19, 26):
             ws.cell(i, c).number_format = "#,##0;-#,##0;-"
         if it["notes"] and (it.get("name_check") == "MISMATCH" or it["action"] in (ACT_MISSING, ACT_INELIGIBLE)
                             or any("by hand" in n or "duplicate" in n for n in it["notes"])):
-            ws.cell(i, 17).fill = warn_fill
+            ws.cell(i, 18).fill = warn_fill
     n = len(rows)
     _font_all(ws, 2, n + 1, len(heads))
-    widths = [5, 13, 11, 11, 26, 26, 11, 24, 32, 14, 32, 18, 14, 10, 32, 30, 30, 11, 11, 11, 11, 12, 12, 10, 60]
+    widths = [5, 13, 11, 11, 26, 26, 11, 24, 13, 32, 14, 32, 18, 14, 10, 32, 30, 30, 11, 11, 11, 11, 12, 12, 10, 60]
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[L(i)].width = w
     for r_ in range(2, n + 2):
-        ws.cell(r_, 25).alignment = Alignment(wrap_text=True, vertical="top")
+        ws.cell(r_, 26).alignment = Alignment(wrap_text=True, vertical="top")
     ws.freeze_panes = "C2"
     ws.auto_filter.ref = f"A1:{L(len(heads))}{n + 1}"
 
